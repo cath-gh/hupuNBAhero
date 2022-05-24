@@ -1,19 +1,8 @@
 // @name         pveBoss
-// @version      0.1
+// @version      0.2
 // @description  NBA英雄 pveBoss
 // @author       Cath
-
-// 原始版本
-// 来源于公会群，原作者不可考了，但在此表示感谢
-// int1 = setInterval(
-//     () => {
-//         if (document.querySelector('.cardwar-pve-boss-challenge')) {
-//             angular.element(document.querySelector('.cardwar-pve-boss-challenge')).triggerHandler('click');
-//         };
-//         if (document.querySelectorAll('.btn span')[2]) {
-//             angular.element(document.querySelectorAll('.btn span')[2]).triggerHandler('click');
-//         };
-//     }, 1000)
+// @update       去掉了倒计时、Boss已被击杀两种状态的处理
 
 var count_boss_challenge = 0;
 
@@ -41,33 +30,14 @@ var boss_challenge = function () {
 var state_check = function () {
     console.log('%s - %s', Date().toString(), 'state_check : 状态监测');
     if (document.querySelector('.cw-popup-restrain-btn')) state_bonus(); // 领取奖励状态
-    else if (document.querySelector('.boss-was_killed')) state_bwk(); // boss已被击杀状态
-    else if (document.querySelector('.boss-soon-time')) state_bst(); // boss倒计时状态
-    else if (document.querySelector('.cardwar-pve-boss-challenge')) state_bc(); // boss challenge状态
-}
-
-// boss已被击杀状态
-var state_bwk = function () {
-    console.log('%s - %s', Date().toString(), 'state_bwk : boss已被击杀状态');
-    bwk = 30;
-    var timer_bwk = bwk * 60 * 1000;
-    // var timer_bwk = 5 * 1000;
-    setTimeout(boss_challenge, timer_bwk);
-    console.log('%s - %s%d%s', Date().toString(), 'setTimeout(boss_challenge, timer_bwk) : 等待', bwk, '分钟');
-}
-
-// boss倒计时状态
-var state_bst = function () {
-    console.log('%s - %s', Date().toString(), 'state_bst : boss倒计时状态');
-    var bst = document.querySelector('.boss-soon-time').textContent;
-    console.log('%s - %s %s', Date().toString(), 'bst : boss倒计时时间', bst);
-    bst = Number(bst.slice(2, 4));
-    if (bst > 1) {
-        var timer_bst = bst * 60 * 1000 + 1000;
-        setTimeout(boss_challenge, timer_bst);
-        console.log('%s - %s%d%s', Date().toString(), 'setTimeout(boss_challenge, timer_bst) : 等待', bst, '分钟');
+    else { //其他状态直接倒计时
+        var datetime = new Date();
+        datetime.setHours(new Date().getHours() + 1);
+        datetime.setMinutes(0, 0, 0);
+        var delta = datetime - new Date() - 10000; //预留出多10000ms
+        setTimeout(state_bc, delta);
+        console.log('%s - %s%d%s', Date().toString(), 'setTimeout(state_bc, delta) : 等待', delta/1000, '秒');
     }
-    else state_bc()
 }
 
 // boss challenge状态
