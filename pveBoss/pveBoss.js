@@ -1,19 +1,18 @@
 // @name         pveBoss
-// @version      0.3
+// @version      0.5
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 使用console.info记录，方便屏蔽官方log
-// @update       2. 记录当前状态，但不处理倒计时、Boss已被击杀
-// @update       3. 去掉领取奖励处理，不影响使用
+// @update       1. 基于0.3版本，修正了击杀Boss操作后返回状态处理
 
 //Number(document.querySelector('.life-num').textContent.slice(9,14))
 var count_boss_challenge = 0;
 
 // 击杀boss
 var killboss = function () {
-    if (document.querySelector('.cardwar-pve-boss-challenge')) {
-        angular.element(document.querySelector('.cardwar-pve-boss-challenge')).triggerHandler('click');
+    if (document.querySelector('.card-btn-charge')) {
+        angular.element(document.querySelectorAll('.monthgift-btn')[1]).triggerHandler('click');
     };
+    //
     if (document.querySelectorAll('.btn span')[2]) {
         angular.element(document.querySelectorAll('.btn span')[2]).triggerHandler('click');
         count_boss_challenge += 1;
