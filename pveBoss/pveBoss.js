@@ -1,10 +1,8 @@
 // @name         pveBoss
-// @version      0.3
+// @version      0.4
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 使用console.info记录，方便屏蔽官方log
-// @update       2. 记录当前状态，但不处理倒计时、Boss已被击杀
-// @update       3. 去掉领取奖励处理，不影响使用
+// @update       1. 增加了Boss血量判断，方便抢Boss，似乎不好使
 
 //Number(document.querySelector('.life-num').textContent.slice(9,14))
 var count_boss_challenge = 0;
@@ -21,18 +19,12 @@ var killboss = function () {
     };
 }
 
-
 // 刷新页面
-var refresh_page = function () {
-    console.info('%s - %s', Date().toString(), 'refresh_page : 刷新页面');
+var boss_challenge = function () {
+    console.info('%s - %s', Date().toString(), 'boss_challenge : 刷新页面');
     angular.element(document.querySelector('.cardwar-pve-boss-back')).triggerHandler('click'); //从boss挑战返回列表
     angular.element(document.querySelector('.cardwar-pvelist-3')).triggerHandler('click'); //进入boss挑战
-}
-
-// 刷新状态
-var boss_challenge = function () {
-    refresh_page();
-    setTimeout(state_check, 1000);
+    setTimeout("state_check();", 1000);
 }
 
 // 状态监测
@@ -50,8 +42,8 @@ var state_check = function () {
         datetime.setHours(new Date().getHours() + 1);
         datetime.setMinutes(0, 0, 0);
         var delta = datetime - new Date() - 10000; //预留出多10000ms
-        setTimeout("refresh_page(); state_bc();", delta);
-        console.info('%s - %s%d%s', Date().toString(), 'setTimeout("refresh_page(); state_bc();", delta) : 等待', delta / 1000, '秒');
+        setTimeout(state_bc, delta);
+        console.info('%s - %s%d%s', Date().toString(), 'setTimeout(state_bc, delta) : 等待', delta / 1000, '秒');
     }
 }
 
@@ -60,7 +52,10 @@ var state_bc = function () {
     console.info('%s - %s', Date().toString(), 'state_bc : boss challenge状态');
     int_bc = setInterval(
         () => {
-            killboss();
+            cont = document.querySelector('.life-num').textContent;
+            boss_life = Number(cont.slice(9, cont.indexOf('/')));
+            console.info('%s - %s%s', Date().toString(), 'boss_life : ', boss_life);
+            if (boss_life > 20000 || boss_life < 3000) killboss();
             if (document.querySelector('.boss-was_killed')) {
                 clearInterval(int_bc);
                 console.info('%s - %s', Date().toString(), 'clearInterval(int_bc) : 清除击杀boss计时器');
