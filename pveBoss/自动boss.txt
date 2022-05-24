@@ -1,0 +1,47 @@
+// ==UserScript==
+// @name         auto BOSS 2.1
+// @namespace    http://tampermonkey.net/
+// @version      2.1
+// @description  auto global boss / auto refresh / auto guild boss
+// @author       JILU@XIJUE
+// @match        https://hupu-cdn.ttnba.cn/*
+// @require      https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js
+// @grant        none
+// ==/UserScript==
+(function() {
+'use strict';
+setInterval(() => {
+    //var e1 = document.getElementsByClassName("cardwar-pve-boss-challenge")[0];
+    var e1 = document.getElementsByClassName("monthgift-btn")[1];
+	var e3 = document.getElementsByClassName("common_two_btn1_item")[1];
+    let url = window.location.href;
+    let minutes = new Date().getMinutes()
+    let seconds = new Date().getSeconds()
+    let hours = new Date().getHours()
+    var btn = document.getElementsByClassName("btn")
+    var e2
+    var flag = false
+    if (btn && btn.length > 0) {
+        for (let i = 0; i < btn.length; i++) {
+            if (btn[i].innerText == '查看战报 继续挑战') {
+                flag = true
+                e2 = document.getElementsByClassName("btn")[i].lastElementChild;
+                angular.element(e2).triggerHandler('click');
+                break;
+            }
+        }
+    }
+    console.log(minutes + ':' + seconds)
+    if (seconds == 30 && (url.search('cardwar_pve_boss') != -1 || url.search('union_boss') != -1)) {
+        window.location.reload();
+    } else if (hours == 20 && e3 && e3.innerText == '挑战BOSS') {
+        angular.element(e3).triggerHandler('click');
+    } else if (e1 && document.getElementsByClassName("card-btn-text")[0]) {
+        //console.log("beat!!!!");
+        //$(".card-btn-charge").get(0).click();
+        //$(".card-btn-charge").click();
+        angular.element(e1).triggerHandler('click');
+    } else if (flag) {
+        angular.element(e2).triggerHandler('click');
+    }
+}, 1000)})();
