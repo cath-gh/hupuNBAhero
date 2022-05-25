@@ -1,32 +1,52 @@
 // @name         pveBoss
-// @version      0.5
+// @version      0.51
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 基于0.3版本，修正了击杀Boss操作后返回状态处理
+// @update       1. 重构部分代码，分离选择器与功能函数
+// @update       2. 重写refresh_page函数
+
 
 //Number(document.querySelector('.life-num').textContent.slice(9,14))
 var count_boss_challenge = 0;
 
 // 击杀boss
 var killboss = function () {
-    if (document.querySelector('.card-btn-charge')) {
-        angular.element(document.querySelectorAll('.monthgift-btn')[1]).triggerHandler('click');
+    if (document.querySelectorAll('.btn')[2].children[1]) {
+        angular.element(document.querySelectorAll('.btn')[2].children[1]).triggerHandler('click');
     };
     //
-    if (document.querySelectorAll('.btn span')[2]) {
-        angular.element(document.querySelectorAll('.btn span')[2]).triggerHandler('click');
+    if (document.querySelectorAll('.monthgift-btn')[1]) {
+        angular.element(document.querySelectorAll('.monthgift-btn')[1]).triggerHandler('click');
         count_boss_challenge += 1;
         console.info('%s - %s : %d', Date().toString(), 'count_boss_challenge', count_boss_challenge);
     };
 }
 
+var getFuncScope=function(selector){
+    return angular.element(selector).scope();
+}
 
 // 刷新页面
 var refresh_page = function () {
     console.info('%s - %s', Date().toString(), 'refresh_page : 刷新页面');
-    angular.element(document.querySelector('.cardwar-pve-boss-back')).triggerHandler('click'); //从boss挑战返回列表
-    angular.element(document.querySelector('.cardwar-pvelist-3')).triggerHandler('click'); //进入boss挑战
+    pveBossBack() //从boss挑战返回列表
+    setTimeout(pveBoss,600); //进入boss挑战
 }
+
+// 进入Boss挑战页面的selector和func
+const selectorPveBoss = document.getElementsByClassName('cardwar-pvelist-3');
+var pveBoss = function(){
+    getFuncScope(selectorPveBoss).goPveBoss();
+}
+
+// 从boss挑战页面返回的selector和func
+const selectorPveBossBack = document.getElementsByClassName('cardwar-pve-boss-back');
+var pveBossBack = function(){
+    getFuncScope(selectorPveBossBack).cardWarGoBack();
+}
+
+
+
 
 // 刷新状态
 var boss_challenge = function () {
