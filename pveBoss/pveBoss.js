@@ -3,45 +3,80 @@
 // @description  NBA英雄 pveBoss
 // @author       Cath
 // @update       1. 重构部分代码，分离选择器与功能函数
-// @update       2. 重写refresh_page函数
-
+// @update       2. 重写refresh_page、killBoss函数
+// @update       3. 新增了页面判断的函数，页面跳转后函数操作不再通过延时执行
 
 //Number(document.querySelector('.life-num').textContent.slice(9,14))
 var count_boss_challenge = 0;
 
 // 击杀boss
 var killboss = function () {
-    if (document.querySelectorAll('.btn')[2].children[1]) {
-        angular.element(document.querySelectorAll('.btn')[2].children[1]).triggerHandler('click');
+    let isAttack = document.getElementsByClassName('card-btn-text')[0]?.innerText === '立即挑战';
+    if (isAttack) {
+        attackBoss();
     };
-    //
-    if (document.querySelectorAll('.monthgift-btn')[1]) {
-        angular.element(document.querySelectorAll('.monthgift-btn')[1]).triggerHandler('click');
+
+    let isContinue = document.getElementsByClassName('btn')[2]?.children[1].innerText === '继续挑战';
+
+    if (isContinue) {
+        continueBoss();
         count_boss_challenge += 1;
         console.info('%s - %s : %d', Date().toString(), 'count_boss_challenge', count_boss_challenge);
     };
 }
 
-var getFuncScope=function(selector){
+// 击杀boss的selector和func
+var selectorAttackBoss = document.getElementsByClassName('monthgift-btn');
+var attackBoss = function () {
+    getFuncScope(selectorAttackBoss).joinAttackBoss();
+}
+
+// 击杀boss的selector和func
+var selectorContinueBoss = document.getElementsByClassName('btn');
+var continueBoss = function () {
+    getFuncScope(selectorContinueBoss).goContinueBoss(false, 3); //不知道3是什么意思，反正99就回到公会boss了
+}
+
+
+var getFuncScope = function (selector) {
     return angular.element(selector).scope();
+}
+
+var checkPage = function (pageIdentifier, interval, cb) {
+    interval = interval || 200;//检查间隔默认为200ms
+    var intCheck = setInterval(() => {
+        if (pageIdentifier()) {
+            clearInterval(intCheck);
+            cb();
+        }
+    }, interval);
 }
 
 // 刷新页面
 var refresh_page = function () {
     console.info('%s - %s', Date().toString(), 'refresh_page : 刷新页面');
     pveBossBack() //从boss挑战返回列表
-    setTimeout(pveBoss,600); //进入boss挑战
+    checkPage(pageIdCardwar, 200, pveBoss);
+
+    // setTimeout(pveBoss, 600); //进入boss挑战
 }
 
+var pageIdCardwar = function () {
+    return document.getElementsByClassName('cardwar-pvelist').length !== 0
+};
+var pageIdpveBoss = function () {
+    document.getElementsByClassName('cardwar-pve-boss-cash').length !== 0
+};
+
 // 进入Boss挑战页面的selector和func
-const selectorPveBoss = document.getElementsByClassName('cardwar-pvelist-3');
-var pveBoss = function(){
+var selectorPveBoss = document.getElementsByClassName('cardwar-pvelist-3');
+var pveBoss = function () {
     getFuncScope(selectorPveBoss).goPveBoss();
 }
 
 // 从boss挑战页面返回的selector和func
-const selectorPveBossBack = document.getElementsByClassName('cardwar-pve-boss-back');
-var pveBossBack = function(){
+var selectorPveBossBack = document.getElementsByClassName('cardwar-pve-boss-back');
+var pveBossBack = function () {
     getFuncScope(selectorPveBossBack).cardWarGoBack();
 }
 
