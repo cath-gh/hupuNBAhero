@@ -1,4 +1,8 @@
+# user
 *.code-workspace
+temp
+*.xls
+*.xlsx
 
 # Logs
 logs
