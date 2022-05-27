@@ -1,9 +1,9 @@
 // @name         pveBoss
-// @version      0.51b
+// @version      0.51d
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 调整代码位置
-// @update       2. 当前为稳定版本，暂不做大修改
+// @update       1. 更新状态判断
+// @update       2. 新增一个简单的log函数
 
 //#region util
 // 获取待执行函数的scope
@@ -21,12 +21,17 @@ var checkPage = function (pageIdentifier, interval, cb) {
         }
     }, interval);
 }
+
+// 简单的一个通用log函数
+var log = function (property, value) {
+    console.info('%s - %s : %s', Date().toString(), property, value);
+}
 //#endregion
 
 //#region refreshPveBossPage
 // 刷新页面
 var refreshPveBossPage = function () {
-    console.info('%s - %s', Date().toString(), 'refreshPveBossPage : 刷新页面');
+    log('refreshPveBossPage', '刷新页面');
     pveBossBack() //从boss挑战返回列表
     checkPage(pageIdCardwar, 200, pveBoss);
 }
@@ -62,7 +67,7 @@ var count_boss_challenge = 0;
 var killboss = function () {
     // checkPage(pageIdAttackBoss, 1000, attackBoss);
     // checkPage(pageIdContinueBoss, 800, continueBoss);
-    
+
     let isAttack = document.getElementsByClassName('card-btn-text')[0]?.innerText === '立即挑战';
     if (isAttack) {
         attackBoss();
@@ -93,7 +98,7 @@ var attackBoss = function () {
     getFuncScope(selectorAttackBoss).joinAttackBoss();
 }
 
-// 击杀boss的selector和func
+// 继续挑战boss的selector和func
 var selectorContinueBoss = document.getElementsByClassName('btn');
 var continueBoss = function () {
     getFuncScope(selectorContinueBoss).goContinueBoss(false, 3); //不知道3是什么意思，反正99就回到公会boss了
@@ -114,7 +119,7 @@ var state_check = function () {
     console.info('%s - %s', Date().toString(), 'state_check : 状态监测');
     console.info('%s - %s : %s', Date().toString(), '领取奖励状态', !!document.querySelector('.cw-popup-restrain-btn'));
     console.info('%s - %s : %s', Date().toString(), 'boss已被击杀状态', !!document.querySelector('.boss-was_killed'));
-    console.info('%s - %s : %s', Date().toString(), 'boss倒计时状态', !!document.querySelector('.boss-soon-time'));
+    console.info('%s - %s : %s', Date().toString(), 'boss倒计时状态', !!document.getElementsByClassName('boss-soon-time').length);
     console.info('%s - %s : %s', Date().toString(), '冷却状态', !!document.querySelector('.text1'));
     console.info('%s - %s : %s', Date().toString(), 'boss challenge状态', !!document.querySelector('.cardwar-pve-boss-challenge'));
 
