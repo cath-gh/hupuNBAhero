@@ -2,8 +2,7 @@
 // @version      0.51d
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 更新状态判断
-// @update       2. 新增一个简单的log函数
+// @update       1. log函数增加颜色并粗体显示，方便与官方log区分
 
 //#region util
 // 获取待执行函数的scope
@@ -24,7 +23,7 @@ var checkPage = function (pageIdentifier, interval, cb) {
 
 // 简单的一个通用log函数
 var log = function (property, value) {
-    console.info('%s - %s : %s', Date().toString(), property, value);
+    console.info('%c%s - %s : %s', 'color:blue;font-weight:bold', Date().toString(), property, value);
 }
 //#endregion
 
@@ -49,12 +48,14 @@ var pageIdpveBoss = function () {
 // 进入Boss挑战页面的selector和func
 var selectorPveBoss = document.getElementsByClassName('cardwar-pvelist-3');
 var pveBoss = function () {
+    log('pveBoss', '挑战Boss');
     getFuncScope(selectorPveBoss).goPveBoss();
 }
 
 // 从boss挑战页面返回的selector和func
 var selectorPveBossBack = document.getElementsByClassName('cardwar-pve-boss-back');
 var pveBossBack = function () {
+    log('pveBossBack', '挑战Boss页面返回');
     getFuncScope(selectorPveBossBack).cardWarGoBack();
 }
 //#endregion
@@ -68,6 +69,7 @@ var killboss = function () {
     // checkPage(pageIdAttackBoss, 1000, attackBoss);
     // checkPage(pageIdContinueBoss, 800, continueBoss);
 
+    log('killBoss', '击杀boss')
     let isAttack = document.getElementsByClassName('card-btn-text')[0]?.innerText === '立即挑战';
     if (isAttack) {
         attackBoss();
@@ -78,7 +80,7 @@ var killboss = function () {
     if (isContinue) {
         continueBoss();
         count_boss_challenge += 1;
-        console.info('%s - %s : %d', Date().toString(), 'count_boss_challenge', count_boss_challenge);
+        log('count_boss_challenge', count_boss_challenge);
     };
 }
 
@@ -95,33 +97,33 @@ var pageIdContinueBoss = function () {
 // 击杀boss的selector和func
 var selectorAttackBoss = document.getElementsByClassName('monthgift-btn');
 var attackBoss = function () {
+    log('attackBoss', '立即挑战');
     getFuncScope(selectorAttackBoss).joinAttackBoss();
 }
 
 // 继续挑战boss的selector和func
 var selectorContinueBoss = document.getElementsByClassName('btn');
 var continueBoss = function () {
+    log('continueBoss', '继续挑战');
     getFuncScope(selectorContinueBoss).goContinueBoss(false, 3); //不知道3是什么意思，反正99就回到公会boss了
 }
 //#endregion
 
-
-
-
 // 刷新状态
 var boss_challenge = function () {
+    log('boss_challenge', 'Boss挑战开启');
     refreshPveBossPage();
     setTimeout(state_check, 1000);
 }
 
 // 状态监测
 var state_check = function () {
-    console.info('%s - %s', Date().toString(), 'state_check : 状态监测');
-    console.info('%s - %s : %s', Date().toString(), '领取奖励状态', !!document.querySelector('.cw-popup-restrain-btn'));
-    console.info('%s - %s : %s', Date().toString(), 'boss已被击杀状态', !!document.querySelector('.boss-was_killed'));
-    console.info('%s - %s : %s', Date().toString(), 'boss倒计时状态', !!document.getElementsByClassName('boss-soon-time').length);
-    console.info('%s - %s : %s', Date().toString(), '冷却状态', !!document.querySelector('.text1'));
-    console.info('%s - %s : %s', Date().toString(), 'boss challenge状态', !!document.querySelector('.cardwar-pve-boss-challenge'));
+    log('state_check', '状态监测');
+    log('领取奖励状态', !!document.querySelector('.cw-popup-restrain-btn'));
+    log('boss已被击杀状态', !!document.querySelector('.boss-was_killed'));
+    log('boss倒计时状态', !!document.getElementsByClassName('boss-soon-time').length);
+    log('冷却状态', !!document.querySelector('.text1'));
+    log('boss challenge状态', !!document.querySelector('.cardwar-pve-boss-challenge'));
 
     if (document.querySelector('.text1') || document.querySelector('.cardwar-pve-boss-challenge')) state_bc();
     else {
@@ -136,15 +138,16 @@ var state_check = function () {
 
 // boss challenge状态
 var state_bc = function () {
-    console.info('%s - %s', Date().toString(), 'state_bc : boss challenge状态');
+    log('state_bc', 'boss challenge状态');
+
     int_bc = setInterval(
         () => {
             killboss();
             if (document.querySelector('.boss-was_killed')) {
                 clearInterval(int_bc);
-                console.info('%s - %s', Date().toString(), 'clearInterval(int_bc) : 清除击杀boss计时器');
+                log('clearInterval(int_bc)', '清除击杀boss计时器');
                 count_boss_challenge = 0;
-                console.info('%s - %s', Date().toString(), 'count_boss_challenge : 击杀boss次数归零');
+                log('count_boss_challenge', '击杀boss次数归零');
                 boss_challenge();
             };
         }, 1000)
