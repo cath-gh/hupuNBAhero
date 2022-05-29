@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.51d
+// @version      0.52
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. log函数增加颜色并粗体显示，方便与官方log区分
+// @update       1. 新增状态检测函数checkState，原有页面检测和interval执行均改写为状态检测方式
 
 //#region util
 // 获取待执行函数的scope
@@ -10,13 +10,17 @@ var getFuncScope = function (selector) {
     return angular.element(selector).scope();
 }
 
-// 检测是否为指定页面，成功后执行cb函数
-var checkPage = function (pageIdentifier, interval, cb) {
-    interval = interval || 200;//检查间隔默认为200ms
-    var intCheck = setInterval(() => {
-        if (pageIdentifier()) {
+// 状态监测函数，检测arrStateCallback中状态并执行函数，根据finishCallback判断是否结束
+var checkState = function (interval = 500, arrStateCallback, finishCallback) {
+    let intCheck = setInterval(() => {
+        for (kv of arrStateCallback) {
+            if (kv['state']()) {
+                kv['callback']();
+            }
+        }
+        if (finishCallback['state']()) {
             clearInterval(intCheck);
-            cb();
+            finishCallback['callback']();
         }
     }, interval);
 }
@@ -32,7 +36,16 @@ var log = function (property, value) {
 var refreshPveBossPage = function () {
     log('refreshPveBossPage', '刷新页面');
     pveBossBack() //从boss挑战返回列表
-    checkPage(pageIdCardwar, 200, pveBoss);
+    // checkPage(pageIdCardwar, 200, pveBoss);
+    checkState(200, [
+        {
+            'state': pageIdCardwar,
+            'callback': pveBoss
+        }
+    ], {
+        'state': pageIdpveBoss,
+        'callback': {}
+    });
 }
 
 // 竞技场页面识别符
@@ -42,7 +55,7 @@ var pageIdCardwar = function () {
 
 // Boss挑战页面识别符
 var pageIdpveBoss = function () {
-    document.getElementsByClassName('cardwar-pve-boss-cash').length !== 0
+    return document.getElementsByClassName('cardwar-pve-boss-cash').length !== 0
 };
 
 // 进入Boss挑战页面的selector和func
@@ -60,28 +73,33 @@ var pveBossBack = function () {
 }
 //#endregion
 
-//#region killBoss
-//Number(document.querySelector('.life-num').textContent.slice(9,14))
-var count_boss_challenge = 0;
-
-// 击杀boss
-var killboss = function () {
-    // checkPage(pageIdAttackBoss, 1000, attackBoss);
-    // checkPage(pageIdContinueBoss, 800, continueBoss);
-
-    log('killBoss', '击杀boss')
-    let isAttack = document.getElementsByClassName('card-btn-text')[0]?.innerText === '立即挑战';
-    if (isAttack) {
-        attackBoss();
-    };
-
-    let isContinue = document.getElementsByClassName('btn')[2]?.children[1].innerText === '继续挑战';
-
-    if (isContinue) {
-        continueBoss();
-        count_boss_challenge += 1;
-        log('count_boss_challenge', count_boss_challenge);
-    };
+//#region bossChallenge
+// boss challenge状态
+var state_bc = function () {
+    log('state_bc', 'boss challenge状态');
+    let count_boss_challenge = 0;
+    checkState(1000, [
+        {
+            'state': pageIdAttackBoss,
+            'callback': attackBoss
+        },
+        {
+            'state': pageIdContinueBoss,
+            'callback': () => {
+                count_boss_challenge += 1;
+                log('count_boss_challenge', count_boss_challenge);
+                continueBoss();
+            }
+        }
+    ], {
+        'state': pageIdDoneBoss,
+        'callback': () => {
+            log('clearInterval(int_bc)', '清除击杀boss计时器');
+            count_boss_challenge = 0;
+            log('count_boss_challenge', '击杀boss次数归零');
+            boss_challenge();
+        }
+    })
 }
 
 // Boss挑战页面立即挑战识别符
@@ -91,7 +109,12 @@ var pageIdAttackBoss = function () {
 
 // Boss挑战完成页面继续挑战识别符
 var pageIdContinueBoss = function () {
-    document.getElementsByClassName('btn')[2]?.children[1].innerText === '继续挑战';
+    return document.getElementsByClassName('btn')[2]?.children[1].innerText === '继续挑战';
+};
+
+// Boss已被击杀页面识别符
+var pageIdDoneBoss = function () {
+    return !!document.querySelector('.boss-was_killed');
 };
 
 // 击杀boss的selector和func
@@ -134,23 +157,6 @@ var state_check = function () {
         setTimeout("refreshPveBossPage(); state_bc();", delta);
         console.info('%s - %s%d%s', Date().toString(), 'setTimeout("refreshPveBossPage(); state_bc();", delta) : 等待', delta / 1000, '秒');
     }
-}
-
-// boss challenge状态
-var state_bc = function () {
-    log('state_bc', 'boss challenge状态');
-
-    int_bc = setInterval(
-        () => {
-            killboss();
-            if (document.querySelector('.boss-was_killed')) {
-                clearInterval(int_bc);
-                log('clearInterval(int_bc)', '清除击杀boss计时器');
-                count_boss_challenge = 0;
-                log('count_boss_challenge', '击杀boss次数归零');
-                boss_challenge();
-            };
-        }, 1000)
 }
 
 boss_challenge();
