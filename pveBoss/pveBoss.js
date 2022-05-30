@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.52
+// @version      0.52b
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 新增状态检测函数checkState，原有页面检测和interval执行均改写为状态检测方式
+// @update       1. 更新checkState函数，立即执行首次状态检测，并在满足终止条件后关闭计时器
 
 //#region util
 // 获取待执行函数的scope
@@ -12,17 +12,23 @@ var getFuncScope = function (selector) {
 
 // 状态监测函数，检测arrStateCallback中状态并执行函数，根据finishCallback判断是否结束
 var checkState = function (interval = 500, arrStateCallback, finishCallback) {
-    let intCheck = setInterval(() => {
+    let checkfunc = function () {
         for (kv of arrStateCallback) {
             if (kv['state']()) {
                 kv['callback']();
             }
         }
-        if (finishCallback['state']()) {
-            clearInterval(intCheck);
-            finishCallback['callback']();
+    };
+    let intCheck = setInterval((() => {
+        checkfunc();
+        return () => {
+            checkfunc();
+            if (finishCallback['state']()) {
+                clearInterval(intCheck);
+                finishCallback['callback']();
+            }
         }
-    }, interval);
+    })(), interval);
 }
 
 // 简单的一个通用log函数
