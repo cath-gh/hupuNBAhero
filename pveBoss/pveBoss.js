@@ -2,7 +2,7 @@
 // @version      0.52b
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 更新checkState函数，立即执行首次状态检测，并在满足终止条件后关闭计时器
+// @update       1. 更新继续挑战pageIdContinueBoss
 
 //#region util
 // 获取待执行函数的scope
@@ -115,7 +115,7 @@ var pageIdAttackBoss = function () {
 
 // Boss挑战完成页面继续挑战识别符
 var pageIdContinueBoss = function () {
-    return document.getElementsByClassName('btn')[2]?.children[1].innerText === '继续挑战';
+    return document.getElementsByClassName('btn')[3]?.children[1].innerText === '继续挑战';
 };
 
 // Boss已被击杀页面识别符
