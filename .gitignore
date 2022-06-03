@@ -1,6 +1,6 @@
 # user
 *.code-workspace
-temp
+# temp
 *.xls
 *.xlsx
 
