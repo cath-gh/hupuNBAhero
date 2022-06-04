@@ -1,23 +1,20 @@
 // @name         pveBoss_request
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 pveBoss_request
-// @comment      增加一个使用HttpRequest方式实现的自动打Boss版本，来源于微信群，在此感谢原作者
+// @author       Cath
+// @update      1. 修正了工会boss的url
 
 ///提示: 请先配置脚本的渠道、区服
-var serv = 'hupu' // 按需设置渠道，'hupu'=虎扑区, 'wx'=微信区
+var server = 'hupu' // 按需设置渠道，'hupu'=虎扑区, 'wx'=微信区
 var service = 1 //按需设置区服, 1即代表XX 1区
 var Hourset = [9, 10, 11, 12, 13, 14]
 //调整Hourset[ ]内整点数, 可限定只打某些整点的BOSS,默认全打(外线、锋线BOSS性价比较高)
 var t = 4000 //初始间隔时间, 默认4秒
 
-switch (serv) {
-    case 'hupu':
-        servURL = 'hupu' + `${service == 1 ? '' : service}` + '-api.ttnba.cn'
-        break;
-    case 'wx':
-        servURL = 'tt' + `${service == 1 ? '' : service}` + '-api.ttnba.cn'
-        break;
-}
+server = server === 'hupu' ? server : 'tt';
+service = service === 1 ? '' : service;
+
+var servURL = `${server + service}-api.ttnba.cn`
 
 //开启循环脚本
 var intervBoss = setInterval((function close(j) {
@@ -74,11 +71,11 @@ function fn() {
     //工会Boss
     else if (date.getDay() == 6 && ((Hour == 19 && Minutes >= 49) || Hour == 20)) {
         xmlHttp.open('POST',
-            `https://` + servURL + `/PlayerFight/killBoss?post_time=${date.getTime()}
-        &TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=hupu`,
+            `https://` + servURL + `/PlayerFight/killSociatyBoss?post_time=${date.getTime()}
+        &TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=m`,
             false)
-        console.log(`https://` + servURL + `/PlayerFight/killBoss?post_time=${date.getTime()}
-        &TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=hupu`)
+        console.log(`https://` + servURL + `/PlayerFight/killSociatyBoss?post_time=${date.getTime()}
+        &TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=m`)
         xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xmlHttp.send(null)
         var res1 = JSON.parse(xmlHttp.responseText);
