@@ -14,7 +14,7 @@
 
     let xmlHttp = new XMLHttpRequest();
     let date = new Date();
-    let [XLnumber,LLnumber] = getnumber(servURL);
+    let [XLnumber, LLnumber] = getnumber(servURL, token);
     if (XLnumber > 0 || LLnumber > 0) {
         for (var i = 1; i < 6; i++) {
             xmlHttp.open('POST', `https://${servURL}/PlayerScoutFight/getArenaDetail?post_time=${date.getTime()}&TEAM_USER_TOKEN=${token}&os=m`, false)
@@ -46,7 +46,7 @@
 })()
 
 //获取剩余场次 返回数组[Max, Lilian]: 1-4特训取Max值(Max), 历练之路取剩余值(Lilian) 后续加上当前层数确定爬塔id
-function getnumber(servURL) {
+function getnumber(servURL, token) {
     var xmlHttp = new XMLHttpRequest();
     var date = new Date()
     xmlHttp.open('POST', `https://${servURL}/PlayerScoutFight/arenaIndex?post_time=${date.getTime()}&TEAM_USER_TOKEN=${token}&os=m`, false)
