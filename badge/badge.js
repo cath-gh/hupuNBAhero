@@ -1,11 +1,9 @@
 // @name         badge
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 badge
 // @comment      来源于微信群，在此感谢原作者
 // @author       Cath
-// @update       1. 统一token获取
-// @update       2. 补齐全部品质徽章获取
-// @update       3. 文件名增加徽章品质及日期信息
+// @update       1. 修正文件名时间戳错误、修改获取徽章数量为5000
 
 (function () {
   const service = 1; // 区服
@@ -26,8 +24,7 @@
     xmlHttp.open(
       "GET",
       `https://hupu${service == 1 ? "" : service
-      }-api.ttnba.cn/Badge/list?post_time=${timer.getTime()}
-          &TEAM_USER_TOKEN=${token}&os=m&filter_equip=0&page=0&num=2000&page=0&quality=${quality}&version=3.0.0`,
+      }-api.ttnba.cn/Badge/list?TEAM_USER_TOKEN=${token}&os=m&filter_equip=1&page=0&num=5000&page=0&quality=${quality}&version=3.0.0`,
       false
     );
     let formData = new FormData();
@@ -124,7 +121,7 @@
       "href",
       uri + window.btoa(unescape(encodeURIComponent(template)))
     );
-    link.setAttribute("download", `${arrQuality[quality]}徽章统计${date.toISOString().slice(0,10).replaceAll('-','')}.xls`);
+    link.setAttribute("download", `${arrQuality[quality]}徽章统计${new Date().toISOString().slice(0,10).replaceAll('-','')}.xls`);
     link.click();
     link = null;
   }
