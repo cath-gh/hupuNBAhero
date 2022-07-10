@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 setStar
 // @author       Cath
-// @comment      添加金卡升星和银卡升星任务功能
+// @update       1.修正函数赋值问题
 
 //#region constant
 const URLPATH_PLAYER_CARD_LIST = '/PlayerFight/playerCardList'; // 用户球员卡牌
@@ -91,7 +91,7 @@ var log = function (value, comment) {
 //#endregion
 
 //#region method
-var getPlayerCardList = function (pos, offset = 0, limit = 50, sort, type = 'reserve') {
+var getPlayerCardList = function (pos, offset = 0, limit = 30, sort = PLAYER_SORT['战力'], type = 'reserve') {
     var method = 'POST';
     var url = urlPlayerCardList;
     var queryString = {
@@ -171,10 +171,10 @@ var getSetStar = function (cardId, starCardIds, inheritCardId = 0, isDuty = 0) {
 }
 
 var taskGoldenCardSetStar = function () {
-    var cardList = getPlayerCardList(pos = PLAYER_POS['中锋'], sort = PLAYER_SORT['战力']);
+    var cardList = getPlayerCardList({ 'pos': PLAYER_POS['中锋'] });
     var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3631' });//阿德巴约
 
-    for (let i = 0; i < 5; i++) { 
+    for (let i = 0; i < 5; i++) {
         var cardStarList = getPlayerCardStarList(cardMain['id']);
         var cardBase = cardStarList.result.card_list[0];
         var setStar = getSetStar(cardBase['id'], [cardMain['id']]);
@@ -184,10 +184,10 @@ var taskGoldenCardSetStar = function () {
 }
 
 var taskSilverCardSetStar = function () {
-    var cardList = getPlayerCardList(pos = PLAYER_POS['大前'],limit=50, sort = PLAYER_SORT['战力']);
+    var cardList = getPlayerCardList({ 'pos': PLAYER_POS['大前'] });
     var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3708' });//马尔卡宁
 
-    for (let i = 0; i < 10; i++) { 
+    for (let i = 0; i < 10; i++) {
         var cardStarList = getPlayerCardStarList(cardMain['id']);
         var cardBase = cardStarList.result.card_list[0];
         var setStar = getSetStar(cardBase['id'], [cardMain['id']]);
@@ -199,4 +199,5 @@ var taskSilverCardSetStar = function () {
 
 //#region run
 taskGoldenCardSetStar();
+taskSilverCardSetStar();
 //#endregion
