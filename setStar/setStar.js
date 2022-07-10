@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.11
+// @version      0.11b
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.修正函数赋值问题
+// @update       1.继续修正函数赋值问题
 
 //#region constant
 const URLPATH_PLAYER_CARD_LIST = '/PlayerFight/playerCardList'; // 用户球员卡牌
@@ -171,7 +171,7 @@ var getSetStar = function (cardId, starCardIds, inheritCardId = 0, isDuty = 0) {
 }
 
 var taskGoldenCardSetStar = function () {
-    var cardList = getPlayerCardList({ 'pos': PLAYER_POS['中锋'] });
+    var cardList = getPlayerCardList(PLAYER_POS['中锋']);
     var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3631' });//阿德巴约
 
     for (let i = 0; i < 5; i++) {
@@ -184,7 +184,7 @@ var taskGoldenCardSetStar = function () {
 }
 
 var taskSilverCardSetStar = function () {
-    var cardList = getPlayerCardList({ 'pos': PLAYER_POS['大前'] });
+    var cardList = getPlayerCardList(PLAYER_POS['大前']);
     var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3708' });//马尔卡宁
 
     for (let i = 0; i < 10; i++) {
