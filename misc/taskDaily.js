@@ -276,8 +276,9 @@ var taskSociatySign = function () {
 //#endregion
 
 //#region run
-// getDailyReward();
-// getVipGetBossChallenge();
-// taskMonthSign();
-// taskBuyFreeGift();
+getDailyReward();
+getVipGetBossChallenge();
+taskMonthSign();
+taskBuyFreeGift();
+taskSociatySign()
 //#endregion
