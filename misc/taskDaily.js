@@ -1,8 +1,8 @@
 // @name         taskDaily
-// @version      0.11b
+// @version      0.12
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.修复alook不支持findLast方法
+// @update       1.添加公会免费拜访任务taskSociatyVisit
 
 (function () {
     //#region constant
@@ -20,6 +20,12 @@
     const URLPATH_GET_MY_SOCIATY = '/Sociaty/getMySociaty';//获取公会id
     const URLPATH_RECEIVE_DAILY_REWARD = '/Sociaty/receiveDailyReward';//公会签到奖励
 
+    const URLPATH_GET_SOCIATY_VISIT_DETAIL = '/Sociaty/getSociatyVisitDetail';//公会拜访任务
+    const URLPATH_SET_SOCIATY_PLAYER_VISIT = '/Sociaty/setSociatyPlayerVisit';//拜访
+    const VISIT_ID = {
+        '交易事务': 1,
+        '公会福利': 2
+    };
     //#endregion
 
     //#region config
@@ -40,6 +46,8 @@
     var urlBuyGift = `${urlHost}${URLPATH_BUY_GIFT}`;
     var urlGetMySociaty = `${urlHost}${URLPATH_GET_MY_SOCIATY}`;
     var urlReceiveDailyReward = `${urlHost}${URLPATH_RECEIVE_DAILY_REWARD}`;
+    var urlGetSociatyVisitDetail = `${urlHost}${URLPATH_GET_SOCIATY_VISIT_DETAIL}`;
+    var urlSetSociatyPlayerVisit = `${urlHost}${URLPATH_SET_SOCIATY_PLAYER_VISIT}`;
     //#endregion
 
     //#region utils
@@ -276,6 +284,56 @@
         var sociaty = getMySociaty();
         getReceiveDailyReward(sociaty.result['sociaty_id']);
     }
+
+
+    var getSociatyVisitDetail = function (visitId) {
+        var method = 'POST';
+        var url = urlGetSociatyVisitDetail;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            'visit_id': visitId,
+            'max_visit_num': 3,
+            'TEAM_USER_TOKEN': token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var setSociatyPlayerVisit = function (playerVisitId, playerVisitDetailId) {
+        var method = 'POST';
+        var url = urlSetSociatyPlayerVisit;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            'player_visit_id': playerVisitId,
+            'player_visit_detail_id': playerVisitDetailId,
+            'TEAM_USER_TOKEN': token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var taskSociatyVisit = function () {
+        for (let i in VISIT_ID) {
+            var detail = getSociatyVisitDetail(VISIT_ID[i]);
+            var info = detail.result['visit_info'][0];
+            if (info['is_free']) {
+                setSociatyPlayerVisit(VISIT_ID[i], info['id']);
+            }
+        }
+
+    }
     //#endregion
 
     //#region run
@@ -283,6 +341,7 @@
     getVipGetBossChallenge();
     taskMonthSign();
     taskBuyFreeGift();
-    taskSociatySign()
+    taskSociatySign();
+    taskSociatyVisit();
     //#endregion
 }())
