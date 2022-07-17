@@ -1,8 +1,8 @@
 // @name         taskDaily
-// @version      0.11
+// @version      0.11b
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.修正每日签到url错误
+// @update       1.修复alook不支持findLast方法
 
 (function () {
     //#region constant
@@ -161,7 +161,13 @@
             setPlayerMonthSign(sign['id']);
         }
 
-        signLast = signList.result.day_list.findLast((item) => { return item['is_sign'] === 2 });
+        if (![].findLast) {//alook不支持findLast，临时解决方法
+            signList.result.day_list.reverse();
+            signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 2 });
+            signList.result.day_list.reverse();
+        } else {
+            signLast = signList.result.day_list.findLast((item) => { return item['is_sign'] === 2 });
+        }
         var signSum = signList.result.sum_day_list.find((item) => { return parseInt(item['day']) >= parseInt(signLast['day'] + 1) });
         if (signSum) {
             setPlayerMonthSign(signSum['id']);
