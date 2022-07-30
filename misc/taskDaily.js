@@ -1,8 +1,8 @@
 // @name         taskDaily
-// @version      0.12
+// @version      0.13
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.添加公会免费拜访任务taskSociatyVisit
+// @update       1.修正每月累计签到
 
 (function () {
     //#region constant
@@ -11,7 +11,8 @@
     const URLPATH_VIP_GET_BOSS_CHELLENGE = '/PlayerFight/vipGetBossChallenge';//vip每日挑战币
 
     const URLPATH_GET_MONTH_SIGN_LIST = '/Activity/getMonthSignList';//每月签到奖励列表
-    const URLPATH_SET_PLAYER_MONTH_SIGN = '/Activity/setPlayerMonthSign';//每月签到奖励签到
+    const URLPATH_SET_PLAYER_MONTH_SIGN = '/Activity/setPlayerMonthSign';//每日签到奖励
+    const URLPATH_SET_PLAYER_MONTH_ALL_SIGN = '/Activity/setPlayerMonthAllSign';//每月签到累计奖励
 
     const URLPATH_GET_PAYMENT_FLAG = '/Player/getPaymentFlag';//每日免费礼包
     const URLPATH_GIFT = '/Activity/gift';//每日特惠列表
@@ -41,6 +42,7 @@
     var urlVipGetBossChallenge = `${urlHost}${URLPATH_VIP_GET_BOSS_CHELLENGE}`;
     var urlGetMonthSignList = `${urlHost}${URLPATH_GET_MONTH_SIGN_LIST}`;
     var urlSetPlayerMonthSign = `${urlHost}${URLPATH_SET_PLAYER_MONTH_SIGN}`;
+    var urlSetPlayerMonthAllSign = `${urlHost}${URLPATH_SET_PLAYER_MONTH_ALL_SIGN}`;
     var urlGetPaymentFlag = `${urlHost}${URLPATH_GET_PAYMENT_FLAG}`;
     var urlGift = `${urlHost}${URLPATH_GIFT}`;
     var urlBuyGift = `${urlHost}${URLPATH_BUY_GIFT}`;
@@ -162,13 +164,34 @@
         return res;
     }
 
+    var setPlayerMonthAllSign = function (id) {
+        var method = 'POST';
+        var url = urlSetPlayerMonthAllSign;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            'id': id,
+            'TEAM_USER_TOKEN': token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var taskMonthSign = function () {
+        //每日签到
         var signList = getMonthSignList();
         var sign = signList.result.day_list.find((item) => { return item['is_sign'] === 0 });
         if (sign) {
             setPlayerMonthSign(sign['id']);
         }
 
+        //累计签到
+        var signLast;
         if (![].findLast) {//alook不支持findLast，临时解决方法
             signList.result.day_list.reverse();
             signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 2 });
@@ -176,9 +199,9 @@
         } else {
             signLast = signList.result.day_list.findLast((item) => { return item['is_sign'] === 2 });
         }
-        var signSum = signList.result.sum_day_list.find((item) => { return parseInt(item['day']) >= parseInt(signLast['day'] + 1) });
+        var signSum = signList.result.sum_day_list.find((item) => { return item['day'] === signLast['day'] });
         if (signSum) {
-            setPlayerMonthSign(signSum['id']);
+            setPlayerMonthAllSign(signSum['id']);
         }
     }
 
