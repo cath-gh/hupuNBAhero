@@ -1,8 +1,8 @@
 // @name         pveMatch
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 pveMatch
 // @author       Cath
-// @comment      1.新增冠军联赛积分赛自动挑战功能
+// @update       1.修正data未定义的错误
 
 (function () {
     //#region constant
@@ -79,7 +79,7 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = getXhr(method, url, queryString);
         return res;
     }
 
@@ -112,7 +112,7 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = getXhr(method, url, queryString);
         return res;
     }
 
