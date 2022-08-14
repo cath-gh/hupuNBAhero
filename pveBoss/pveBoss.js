@@ -1,168 +1,98 @@
-// @name         pveBoss
-// @version      0.52b
-// @description  NBA英雄 pveBoss
+// @name         pveBoss_request
+// @version      0.11
+// @description  NBA英雄 pveBoss_request
 // @author       Cath
-// @update       1. 更新继续挑战pageIdContinueBoss
+// @update       1. 调整了变量初始化形式
 
-//#region util
-// 获取待执行函数的scope
-var getFuncScope = function (selector) {
-    return angular.element(selector).scope();
-}
+///提示: 请先配置脚本的渠道、区服
+let server = 'hupu'; // 按需设置渠道，'hupu'=虎扑区, 'tt'=微信区
+let service = 1; //按需设置区服, 1即代表XX 1区
+let servURL = `${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
+let token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
+var Hourset = [9, 10, 11, 12, 13, 14]
+//调整Hourset[ ]内整点数, 可限定只打某些整点的BOSS,默认全打(外线、锋线BOSS性价比较高)
+var t = 4000 //初始间隔时间, 默认4秒
 
-// 状态监测函数，检测arrStateCallback中状态并执行函数，根据finishCallback判断是否结束
-var checkState = function (interval = 500, arrStateCallback, finishCallback) {
-    let checkfunc = function () {
-        for (kv of arrStateCallback) {
-            if (kv['state']()) {
-                kv['callback']();
-            }
-        }
-    };
-    let intCheck = setInterval((() => {
-        checkfunc();
-        return () => {
-            checkfunc();
-            if (finishCallback['state']()) {
-                clearInterval(intCheck);
-                finishCallback['callback']();
-            }
-        }
-    })(), interval);
-}
-
-// 简单的一个通用log函数
-var log = function (property, value) {
-    console.info('%c%s - %s : %s', 'color:blue;font-weight:bold', Date().toString(), property, value);
-}
-//#endregion
-
-//#region refreshPveBossPage
-// 刷新页面
-var refreshPveBossPage = function () {
-    log('refreshPveBossPage', '刷新页面');
-    pveBossBack() //从boss挑战返回列表
-    // checkPage(pageIdCardwar, 200, pveBoss);
-    checkState(200, [
-        {
-            'state': pageIdCardwar,
-            'callback': pveBoss
-        }
-    ], {
-        'state': pageIdpveBoss,
-        'callback': {}
-    });
-}
-
-// 竞技场页面识别符
-var pageIdCardwar = function () {
-    return document.getElementsByClassName('cardwar-pvelist').length !== 0
-};
-
-// Boss挑战页面识别符
-var pageIdpveBoss = function () {
-    return document.getElementsByClassName('cardwar-pve-boss-cash').length !== 0
-};
-
-// 进入Boss挑战页面的selector和func
-var selectorPveBoss = document.getElementsByClassName('cardwar-pvelist-3');
-var pveBoss = function () {
-    log('pveBoss', '挑战Boss');
-    getFuncScope(selectorPveBoss).goPveBoss();
-}
-
-// 从boss挑战页面返回的selector和func
-var selectorPveBossBack = document.getElementsByClassName('cardwar-pve-boss-back');
-var pveBossBack = function () {
-    log('pveBossBack', '挑战Boss页面返回');
-    getFuncScope(selectorPveBossBack).cardWarGoBack();
-}
-//#endregion
-
-//#region bossChallenge
-// boss challenge状态
-var state_bc = function () {
-    log('state_bc', 'boss challenge状态');
-    let count_boss_challenge = 0;
-    checkState(1000, [
-        {
-            'state': pageIdAttackBoss,
-            'callback': attackBoss
-        },
-        {
-            'state': pageIdContinueBoss,
-            'callback': () => {
-                count_boss_challenge += 1;
-                log('count_boss_challenge', count_boss_challenge);
-                continueBoss();
-            }
-        }
-    ], {
-        'state': pageIdDoneBoss,
-        'callback': () => {
-            log('clearInterval(int_bc)', '清除击杀boss计时器');
-            count_boss_challenge = 0;
-            log('count_boss_challenge', '击杀boss次数归零');
-            boss_challenge();
-        }
-    })
-}
-
-// Boss挑战页面立即挑战识别符
-var pageIdAttackBoss = function () {
-    return document.getElementsByClassName('card-btn-text')[0]?.innerText === '立即挑战';
-};
-
-// Boss挑战完成页面继续挑战识别符
-var pageIdContinueBoss = function () {
-    return document.getElementsByClassName('btn')[3]?.children[1].innerText === '继续挑战';
-};
-
-// Boss已被击杀页面识别符
-var pageIdDoneBoss = function () {
-    return !!document.querySelector('.boss-was_killed');
-};
-
-// 击杀boss的selector和func
-var selectorAttackBoss = document.getElementsByClassName('monthgift-btn');
-var attackBoss = function () {
-    log('attackBoss', '立即挑战');
-    getFuncScope(selectorAttackBoss).joinAttackBoss();
-}
-
-// 继续挑战boss的selector和func
-var selectorContinueBoss = document.getElementsByClassName('btn');
-var continueBoss = function () {
-    log('continueBoss', '继续挑战');
-    getFuncScope(selectorContinueBoss).goContinueBoss(false, 3); //不知道3是什么意思，反正99就回到公会boss了
-}
-//#endregion
-
-// 刷新状态
-var boss_challenge = function () {
-    log('boss_challenge', 'Boss挑战开启');
-    refreshPveBossPage();
-    setTimeout(state_check, 1000);
-}
-
-// 状态监测
-var state_check = function () {
-    log('state_check', '状态监测');
-    log('领取奖励状态', !!document.querySelector('.cw-popup-restrain-btn'));
-    log('boss已被击杀状态', !!document.querySelector('.boss-was_killed'));
-    log('boss倒计时状态', !!document.getElementsByClassName('boss-soon-time').length);
-    log('冷却状态', !!document.querySelector('.text1'));
-    log('boss challenge状态', !!document.querySelector('.cardwar-pve-boss-challenge'));
-
-    if (document.querySelector('.text1') || document.querySelector('.cardwar-pve-boss-challenge')) state_bc();
-    else {
-        var datetime = new Date();
-        datetime.setHours(new Date().getHours() + 1);
-        datetime.setMinutes(0, 0, 0);
-        var delta = datetime - new Date() - 10000; //预留出多10000ms
-        setTimeout("refreshPveBossPage(); state_bc();", delta);
-        console.info('%s - %s%d%s', Date().toString(), 'setTimeout("refreshPveBossPage(); state_bc();", delta) : 等待', delta / 1000, '秒');
+//开启循环脚本
+var intervBoss = setInterval((function close(j) {
+    return function () {
+        fn(j)
     }
-}
+})(servURL, Hourset), t);
 
-boss_challenge();
+function fn() {
+    var xmlHttp = new XMLHttpRequest();
+    var date = new Date()
+    // (虎扑1区) 9点-lv.28勇士均衡 10点-lv30猛龙外线 11点-lv28猛龙外线 12点-lv28小牛内线 13点-lv28勇士均衡 14点-lv28七六人锋线
+    //特殊Boss: 一般在10点, 即平日10点后boss会顺延
+    var Hour = date.getHours()
+    var Minutes = date.getMinutes()
+
+    // 日常Boss
+    if (((Hourset.indexOf(Hour) > -1)) || (Hourset.indexOf(Hour + 1) > -1 && Minutes >= 49)) {
+        xmlHttp.open('GET',
+            `https://` + servURL + `/PlayerFight/killBoss?post_time=${date.getTime()}&
+                 TEAM_USER_TOKEN=${token}&os=m`,
+            false)
+        console.log(`https://` + servURL + `/PlayerFight/killBoss?post_time=${date.getTime()}&
+            TEAM_USER_TOKEN=${token}&os=m`)
+        xmlHttp.send(null)
+        var res = JSON.parse(xmlHttp.responseText);
+        console.log(res)
+        switch (res.status) {
+            case -1200:
+                console.error('【自动BOSS脚本】token过期，请重新获取')
+                break
+            case -8409:
+                if (Hourset.indexOf(Hour + 1) > -1 && Minutes >= 49) {
+                    t = 4000
+                    clearInterval(intervBoss)
+                    intervBoss = setInterval(fn, t)
+                    console.log('【自动BOSS脚本】临近BOSS，开始4秒快刷新模式')
+                    break
+                } else {
+                    t = 600000
+                    clearInterval(intervBoss)
+                    intervBoss = setInterval(fn, t)
+                    console.log('【自动BOSS脚本】BOSS未开放，进入10分钟刷新模式')
+                    break
+                }
+            case -8404:
+                console.log('【自动BOSS脚本】Boss已击败，脚本进入10分钟刷新模式')
+                t = 600000
+                clearInterval(intervBoss)
+                intervBoss = setInterval(fn, t)
+                break
+        }
+    }
+    //工会Boss
+    else if (date.getDay() == 6 && ((Hour == 19 && Minutes >= 49) || Hour == 20)) {
+        xmlHttp.open('POST',
+            `https://` + servURL + `/PlayerFight/killSociatyBoss?post_time=${date.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+            false)
+        console.log(`https://` + servURL + `/PlayerFight/killSociatyBoss?post_time=${date.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`)
+        xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xmlHttp.send(null)
+        var res1 = JSON.parse(xmlHttp.responseText);
+        console.log(res1)
+        if (Hour == 20) {
+            switch (res1.status) {
+                case -8417:
+                    console.log('【自动BOSS脚本】工会Boss已击败，脚本进入10分钟刷新模式')
+                    t = 600000
+                    clearInterval(intervBoss)
+                    intervBoss = setInterval(fn, t)
+                    break
+            }
+        }
+    }
+    else {
+        t = 600000
+        clearInterval(intervBoss)
+        intervBoss = setInterval(fn, t)
+        console.log('【自动BOSS脚本】BOSS不在目标列表内，进入10分钟刷新模式')
+    }
+    console.log((date.toLocaleString()) + "\n【自动BOSS脚本】当前刷新频率：", (t / 1000), "秒")
+}

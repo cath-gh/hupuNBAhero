@@ -1,0 +1,24 @@
+    (function () {
+        setInterval(() => {
+            for (let i = 0; i < document.getElementsByTagName('li').length; i++) {
+                angular.element(document.getElementsByTagName('li')[i]).triggerHandler('click');
+            }
+            let timer1 = setTimeout(() => {
+                clearTimeout(timer1)
+                angular.element(document.getElementsByClassName('card-sell-btn')[1]).triggerHandler('click');
+            }, 1000);
+            let timer2 = setTimeout(() => {
+                clearTimeout(timer2)
+                angular.element(document.getElementsByClassName('card-upgrade-btn')[0]).triggerHandler('click');
+            }, 1000);
+            let timer3 = setTimeout(() => {
+                clearTimeout(timer3)
+                angular.element(document.getElementsByClassName('further_success')[0]).triggerHandler('click');
+            }, 1000);
+            let timer4 = setTimeout(() => {
+                clearTimeout(timer4)
+                angular.element(document.getElementsByClassName('item_btn')[0]).triggerHandler('click');
+            }, 1000);
+
+        }, 8000);
+    }())
