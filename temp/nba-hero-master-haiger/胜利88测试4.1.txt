@@ -3,7 +3,7 @@
       let giveUpScore = 0 // 底牌低于本数值自动放弃本局
       let raiseScore = 30 // 场上牌获得后超过本数值开始自动加价
       let mostRaise = 0.3 // 剩余金钱*本数值为自动加价最大值，例：当前剩余1000，该值为0.5，当前出价超过500时停止自动加价
-      let allInScore = 86 // 超过本数值后无限加价
+      let allInScore = 83 // 超过本数值后无限加价
       console.log(new Date())
       if (document.getElementsByClassName('pop_tab').length) {
         angular.element(document.getElementsByClassName('pop_tab')[0].lastElementChild).triggerHandler('click') // 再来一局

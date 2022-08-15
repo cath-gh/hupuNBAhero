@@ -1,5 +1,5 @@
   let zbTimer = setInterval(() => {
-      let mostUse = 1
+      let mostUse = 6
       if (document.getElementsByClassName("index_btn")[0] &&
           document.getElementsByClassName("index_btn")[0].lastElementChild &&
           document.getElementsByClassName("index_btn")[0].lastElementChild.innerText > mostUse) {
