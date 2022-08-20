@@ -1,8 +1,8 @@
 // @name         taskDaily
-// @version      0.13
+// @version      0.14
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.修正每月累计签到
+// @update       1.更新signList状态
 
 (function () {
     //#region constant
@@ -191,6 +191,7 @@
         }
 
         //累计签到
+        signList = getMonthSignList();//更新signList状态
         var signLast;
         if (![].findLast) {//alook不支持findLast，临时解决方法
             signList.result.day_list.reverse();
