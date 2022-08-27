@@ -1,13 +1,18 @@
 // @name         pveDailyReward
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 pveDailyReward
 // @author       Cath
-// @comment      1.新增自动领取冠军经理积分赛奖励，待完成
+// @update       1.自动领取冠军经理积分赛参与、胜利、连胜、积分奖励
 
-// (function () {
+(function () {
     //#region constant
     const URLPATH_PVE_DAILY_REWARD = '/PlayerFight/pveDailyReward';//冠军经理模式积分赛任务奖励列表
     const URLPATH_POINTS_LIST = '/PlayerFight/pointsList';//冠军经理模式积分赛积分奖励列表
+    const URLPATH_RECEIVE_PVE_JOIN_REWARD = '/PlayerFight/receivePveJoinReward';//冠军经理模式积分赛参与奖励
+    const URLPATH_RECEIVE_PVE_WIN_REWARD = '/PlayerFight/receivePveWinReward';//冠军经理模式积分赛胜利奖励
+    const URLPATH_RECEIVE_PVE_STREAK_WIN_REWARD = '/PlayerFight/receivePveStreakWinReward';//冠军经理模式积分赛连胜奖励
+
+    const URLPATH_POINTS_AWARD = '/PlayerFight/pointsAward';//冠军经理模式积分赛积分奖励
     //#endregion
 
     //#region config
@@ -21,6 +26,11 @@
     var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
     var urlPveDailyReward = `${urlHost}${URLPATH_PVE_DAILY_REWARD}`;
     var urlPointsList = `${urlHost}${URLPATH_POINTS_LIST}`;
+    var urlReceivePveJoinReward = `${urlHost}${URLPATH_RECEIVE_PVE_JOIN_REWARD}`;
+    var urlReceivePveWinReward = `${urlHost}${URLPATH_RECEIVE_PVE_WIN_REWARD}`;
+    var urlReceivePveStreakWinReward = `${urlHost}${URLPATH_RECEIVE_PVE_STREAK_WIN_REWARD}`;
+
+    var urlPointsAward = `${urlHost}${URLPATH_POINTS_AWARD}`;
     //#endregion
 
     //#region utils
@@ -80,8 +90,77 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString,    JSON.stringify(data));
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
         return res;
+    }
+
+    var getReceivePveJoinReward = function (showType = 3) {
+        var method = 'POST';
+        var url = urlReceivePveJoinReward;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            show_type: showType,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getReceivePveWinReward = function (showType = 3) {
+        var method = 'POST';
+        var url = urlReceivePveWinReward;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            show_type: showType,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getReceivePveStreakWinReward = function (num, showType = 3) {
+        var method = 'POST';
+        var url = urlReceivePveStreakWinReward;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            num: num,
+            show_type: showType,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var taskPveDailyReward = function () {
+        var pveDailyReward = getPveDailyReward().result;
+        if (pveDailyReward['list']['join_reward']['left_reward_time'] > 0) {
+            getReceivePveJoinReward();
+        }
+        if (pveDailyReward['list']['win_reward']['left_reward_time'] > 0) {
+            getReceivePveWinReward();
+        }
+        var streakWinList = pveDailyReward['list']['streak_win_reward'].filter((item) => { return item['left_reward_time'] > 0 });
+        if (streakWinList.length) {
+            streakWinList.map((item) => { getReceivePveStreakWinReward(item['score']) });
+        }
     }
 
     var getPointsList = function (showType = 3) {
@@ -98,19 +177,40 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString,    JSON.stringify(data));
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskPveMatch = function () {
-        var pveIndex = getPveIndex().result;
-        for (let i = pveIndex['day_all']; i < pveIndex['day_max_num']; i++) {
-            pveMatch();
+    var getPointsAward = function (id, showType = 3) {
+        var method = 'POST';
+        var url = urlPointsAward;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            id: id,
+            show_type: showType,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var taskPointsAward = function () {
+        var pointsAward = getPointsList().result;
+        var award = pointsAward['list'].find((item) => { return item['status'] === 1 });
+        if (award) {
+            getPointsAward(award['id']);
         }
     }
     //#endregion
 
     //#region run
-    
+    taskPveDailyReward();
+    taskPointsAward()
     //#endregion
-// }())
+}())
