@@ -1,8 +1,8 @@
 // @name         matchDetail
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 matchDetail
 // @author       Cath
-// @comment      1.试验计算对战实时战力
+// @update       1.修正一个拼写错误
 
 // (function () {
 //#region constant
@@ -89,7 +89,7 @@ var getPveMatchDetail = function (matchID) {
     };
 
     data = {
-        match_ID: matchID,
+        match_id: matchID,
         TEAM_USER_TOKEN: token
     }
 
