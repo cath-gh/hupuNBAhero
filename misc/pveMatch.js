@@ -2,7 +2,7 @@
 // @version      0.12
 // @description  NBA英雄 pveMatch
 // @author       Cath
-// @update       1.合并自动领取冠军经理积分赛参与、胜利、连胜、积分奖励
+// @update       1.修正了积分奖励领取
 
 (function () {
     //#region constant
@@ -278,10 +278,8 @@
 
     var taskPointsAward = function () {
         var pointsAward = getPointsList().result;
-        var award = pointsAward['list'].find((item) => { return item['status'] === 1 });
-        if (award) {
-            getPointsAward(award['id']);
-        }
+        var awardList = pointsAward['list'].filter((item) => { return item['status'] === 1 });
+        awardList.map((item) => { getPointsAward(item['id']) });
     }
     //#endregion
 
