@@ -2,7 +2,7 @@
 // @version      0.15
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.更新方式二，待测试
+// @update       1.修正累计签到错误
 
 (function () {
     //#region constant
@@ -203,9 +203,9 @@
         // }
 
         // 方式二
-        var signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 4 });//signList未更新状态时，[is_sign=4]为当前天
+        // var signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 4 });//signList未更新状态时，[is_sign=4]为当前天
 
-        var signSum = signList.result.sum_day_list.find((item) => { return item['day'] === signLast['day'] });
+        var signSum = signList.result.sum_day_list.find((item) => { return item['day'] === sign['day'] });
         if (signSum) {
             setPlayerMonthAllSign(signSum['id']);
         }
