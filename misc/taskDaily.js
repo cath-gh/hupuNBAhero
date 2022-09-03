@@ -189,21 +189,6 @@
         if (sign) {
             setPlayerMonthSign(sign['id']);
 
-            //累计签到
-            // 方式一
-            // signList = getMonthSignList();//更新signList状态
-            // var signLast;
-            // if (![].findLast) {//alook不支持findLast，临时解决方法
-            //     signList.result.day_list.reverse();
-            //     signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 2 });
-            //     signList.result.day_list.reverse();
-            // } else {
-            //     signLast = signList.result.day_list.findLast((item) => { return item['is_sign'] === 2 });
-            // }
-
-            // 方式二
-            // var signLast = signList.result.day_list.find((item) => { return item['is_sign'] === 4 });//signList未更新状态时，[is_sign=4]为当前天
-
             var signSum = signList.result.sum_day_list.find((item) => { return item['day'] === sign['day'] });
             if (signSum) {
                 setPlayerMonthAllSign(signSum['id']);
