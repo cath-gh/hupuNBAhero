@@ -1,0 +1,49 @@
+wss://hupu-ws.ttnba.cn:7401/
+1. 建立连接
+发送
+{
+  "msg_id": 2001,
+  "msg_content": {
+    "user_id": ,//{user_id}冠军经理球员搜索有https://hupu-api.ttnba.cn/player/home
+    "server_id": ,//{1701}
+    "user_token": ,//"{token}"
+    "cookie": ""//{"sensorsdata2015jssdkcross={ttnba=>sensorsdata2015jssdkcross}"}  encodeURIComponent
+  }
+}
+回复
+{"msg_id":2001,"error_code":0,"msg_content":"","server_time":1662177213}
+2. 保持通信消息
+发送  {"msg_id":2003}  间隔20秒
+回复  {"msg_id":2003,"error_code":0,"msg_content":"","server_time":1662184453}
+3. 忽略：msg_id:9004/2111/2109/2108/6113/2112/2100/2101/2122/2149
+2111：竞拍
+2108：倒计时类型
+2107：新的竞拍卡牌
+4. boss
+{
+  "msg_id": 9001,
+  "match_type": 1,
+  "boss_id": 7713,
+  "kill_score": 145,
+  "left_score": 379855
+}
+{
+  "msg_id": 9002,
+  "match_type": 1,
+  "boss_id": 7715,
+  "is_auto": 0,
+  "boss_type": 1
+}
+{
+  "msg_id": 9001,
+  "match_type": 1,
+  "boss_id": 7715,
+  "kill_score": 7469,
+  "left_score": 372531
+}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":372385,"left_score":7615}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":373229,"left_score":6771}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":374107,"left_score":5893}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":375064,"left_score":4936}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":378869,"left_score":1131}
+{"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":380110,"left_score":0}
