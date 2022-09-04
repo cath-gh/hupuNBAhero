@@ -2,13 +2,14 @@
 // @version      0.1
 // @description  NBA英雄 signScoutRolls
 // @author       Cath
-// @comment      1.增加冠军经理模式搜索球员功能，仅执行半价搜索且不签约
+// @update       1.切换为1级秋燕
 
-// (function () {
+(function () {
     //#region constant
     const URLPATH_GET_CARD_SHOP_LIST = '/Cardshop/getCardShopList';//冠军经理模式球员搜索主页面
     const URLPATH_GUESS_CARD_SHOP = '/Cardshop/guessCardShop';//搜索球员
     const URLPATH_SIGN_SCOUT_ROLLS = '/cardShop/signSocutRolls';//签约球员 居然还有拼写错误
+    const URLPATH_CHANGE_SCOUT = '/playerScoutFight/changeScout';//切换球探等级
 
     //#endregion
 
@@ -24,6 +25,7 @@
     var urlGetCardShopList = `${urlHost}${URLPATH_GET_CARD_SHOP_LIST}`;
     var urlGuessCardShop = `${urlHost}${URLPATH_GUESS_CARD_SHOP}`;
     var urlSignScoutRolls = `${urlHost}${URLPATH_SIGN_SCOUT_ROLLS}`;
+    var urlChangeScout = `${urlHost}${URLPATH_CHANGE_SCOUT}`;
     //#endregion
 
     //#region utils
@@ -127,7 +129,26 @@
         return res;
     }
 
+    var getChangeScout = function (newScoutId) {
+        var method = 'POST';
+        var url = urlChangeScout;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            new_scout_id: newScoutId,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var taskSignScoutRolls = function () {//执行所有赛区半价搜索且不签约任何球员
+        getChangeScout(1);//切换为1级球探
         var cardShopList = getCardShopList().result['list'];
         var halfShopList = cardShopList.filter((item) => { return item['remain_half_count'] > 0 });
         halfShopList.forEach((item) => {
@@ -138,6 +159,6 @@
     //#endregion
 
     //#region run
-    // taskSignScoutRolls();
+    taskSignScoutRolls();
     //#endregion
-// }())
+}())
