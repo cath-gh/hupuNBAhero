@@ -2,12 +2,14 @@
 // @version      0.1
 // @description  NBA英雄 websocket
 // @author       Cath
-// @comment      1.测试WebSocket
+// @update       1.增加保持连接消息
 
 // (function () {
 //#region constant
 const URLPATH_HOME = '/player/home';//用户信息
 const URLPATH_PVE_MATCH_DETAIL = '/Playerfight/pveMatchDetail';//积分赛明细
+const WS_WATCHDOG = { msg_id: 2003 };
+const WS_WATCHDOG_INTERVAL = 20000;
 //#endregion
 
 //#region config
@@ -94,6 +96,14 @@ var log = function (value, comment) {
         console.info(value);
     }
 }
+
+var immediatelyInterval = function (func, interval) {
+    var int = setInterval((() => {
+        func();
+        return func;
+    })(), interval);
+    return int;
+}
 //#endregion
 
 //#region method
@@ -112,6 +122,14 @@ var getHome = function () {
 
     var res = getXhr(method, url, queryString, JSON.stringify(data));
     return res;
+}
+
+var wsWatchDog = function () {
+    if (ws) {
+        immediatelyInterval(() => {
+            ws.send(JSON.stringify(WS_WATCHDOG));
+        }, WS_WATCHDOG_INTERVAL)
+    }
 }
 
 // var taskWebSocket  =function(){
