@@ -26,6 +26,36 @@ var urlPveMatchDetail = `${urlHost}${URLPATH_PVE_MATCH_DETAIL}`;
 
 //#region utils
 // 定义url字符串拼接的方法
+var initWebSocket = function (url, onOpen, onMessage, onError, onClose) {
+    var ws = new WebSocket(url);
+    ws.onopen = onOpen || function () {
+        // Web Socket is connected, send data using send()
+        // ws.send("121314");
+        log("Message is sending");
+    };
+    ws.onmessage = onMessage || function (evt) {
+        var received_msg = evt.data;
+        log("Message is received");
+        log(evt.data);
+    };
+    ws.onerror = onError || function (err) {
+        log(err);
+    };
+    ws.onclose = onClose || function () {
+        // websocket is closed
+        log("Connection is closed");
+    };
+    return ws;
+}
+
+var wsMessage = function (evt) {
+    var received_msg = evt.data;
+    log("Message is received");
+    // log(evt);
+    var msg = JSON.parse(evt.data);
+    log(msg);
+}
+
 var concatUrlQuery = function (url, query) {
     if (query) {
         let queryArr = [];
@@ -84,29 +114,12 @@ var getHome = function () {
     return res;
 }
 
+// var taskWebSocket  =function(){
+//     var ws = initWebSocket(urlWebSocket, null, wsMessage);
+// }
 //#endregion
 
 //#region run
-var initWS = function () {
-    var ws = new WebSocket(urlWebSocket);
-    ws.onopen = function () {
-        // Web Socket is connected, send data using send()
-        // ws.send("121314");
-        log("Message is sending");
-    };
-    ws.onmessage = function (evt) {
-        var received_msg = evt.data;
-        log("Message is received");
-        log(evt.data)
-    };
-    ws.onerror = function (err) {
-        log(err);
-    };
-    ws.onclose = function () {
-        // websocket is closed
-        log("Connection is closed");
-    };
-    return ws;
-}
+
     //#endregion
 // }())
