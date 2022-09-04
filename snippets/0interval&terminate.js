@@ -13,3 +13,11 @@ var int1 = setInterval((() => {
 
 b = 4;
 clearInterval(int1)
+
+var immediatelyInterval = function (func, interval) {
+    var int = setInterval((() => {
+        func();
+        return func;
+    })(), interval);
+    return int;
+}
