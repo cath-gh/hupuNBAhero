@@ -2,7 +2,7 @@
 // @version      0.1
 // @description  NBA英雄 signScoutRolls
 // @author       Cath
-// @update       1.切换为1级秋燕
+// @update       1.切换为1级球探
 
 (function () {
     //#region constant
