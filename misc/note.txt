@@ -47,3 +47,84 @@ wss://hupu-ws.ttnba.cn:7401/
 {"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":375064,"left_score":4936}
 {"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":378869,"left_score":1131}
 {"msg_id":9001,"match_type":1,"boss_id":7715,"kill_score":380110,"left_score":0}
+
+区服id
+{
+  "status": 0,
+  "result": {
+    "list": [
+      {
+        "id": "77",
+        "server_id": "1008",
+        "name": "英雄3区",
+        "label": "0",
+        "start_time": "1657681200",
+        "zone_id": "1"
+      },
+      {
+        "id": "66",
+        "server_id": "1713",
+        "name": "虎扑3|4区",
+        "label": "1",
+        "start_time": "1598583600",
+        "zone_id": "1"
+      },
+      {
+        "id": "51",
+        "server_id": "1101",
+        "name": "冠军经理H",
+        "label": "0",
+        "start_time": "1639447200",
+        "zone_id": "1"
+      }
+    ],
+    "enter_list": [
+      {
+        "id": "13",
+        "server_id": "1701",
+        "name": "虎扑1区",
+        "label": "2",
+        "start_time": "1510636800",
+        "zone_id": "1",
+        "enter_time": "2022-09-10"
+      },
+      {
+        "id": "14",
+        "server_id": "1702",
+        "name": "虎扑2区",
+        "label": "2",
+        "start_time": "1570636800",
+        "zone_id": "1",
+        "enter_time": "2022-08-05"
+      },
+      {
+        "id": "45",
+        "server_id": "1006",
+        "name": "英雄1区",
+        "label": "2",
+        "start_time": "1634612400",
+        "zone_id": "1",
+        "enter_time": "2022-05-05"
+      },
+      {
+        "id": "64",
+        "server_id": "1007",
+        "name": "英雄2区",
+        "label": "2",
+        "start_time": "1647399600",
+        "zone_id": "1",
+        "enter_time": "2022-05-05"
+      }
+    ],
+    "default": {
+      "id": "13",
+      "server_id": "1701",
+      "name": "虎扑1区",
+      "label": "2",
+      "start_time": "1510636800",
+      "zone_id": "1",
+      "enter_time": "2022-09-10"
+    }
+  },
+  "server_time": 1662800489
+}

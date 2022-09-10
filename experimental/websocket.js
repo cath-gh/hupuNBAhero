@@ -1,8 +1,8 @@
 // @name         websocket
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 websocket
 // @author       Cath
-// @update       1.增加保持连接消息
+// @update       1.不能同时建立第二个连接
 
 // (function () {
 //#region constant
@@ -124,7 +124,23 @@ var getHome = function () {
     return res;
 }
 
-var wsWatchDog = function () {
+var wsMsgInit = function (ws) {
+    if (ws) {
+        var home = getHome().result;
+        var msgInit = {
+            msg_content: {
+                user_id: home['id'],
+                server_id: '1701',
+                user_token: token,
+                cookie: encodeURIComponent(document.cookie)
+            },
+            msg_id: 2001
+        }
+        ws.send(JSON.stringify(msgInit))
+    }
+}
+
+var wsMsgWatchDog = function (ws) {
     if (ws) {
         immediatelyInterval(() => {
             ws.send(JSON.stringify(WS_WATCHDOG));
@@ -132,10 +148,13 @@ var wsWatchDog = function () {
     }
 }
 
-// var taskWebSocket  =function(){
-//     var ws = initWebSocket(urlWebSocket, null, wsMessage);
-// }
-//#endregion
+var taskWebSocket = function () {
+    var ws = initWebSocket(urlWebSocket, null, wsMessage);
+    wsMsgInit(ws);
+    wsMsgWatchDog(ws);
+
+}
+// #endregion
 
 //#region run
 
