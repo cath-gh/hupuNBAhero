@@ -1,9 +1,8 @@
 // @name         gvgHearten
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 gvgHearten
 // @author       Cath
-// @comment      1.测试公会免费鼓舞
-// @comment      2.修正log函数
+// @update       1.修正免费鼓舞后显示金币错误的问题
 
 (function () {
     //#region constant
@@ -157,7 +156,8 @@
                 var resource = getResource().result;
                 log('credit', resource['credit']);
                 var gvgHearten = getGvgHearten(gvgScheduleList['time_list'][schedule[0]['round'] - 1], schedule[0]['pos']).result;
-                log('credit', gvgHearten['resource']['credit']);
+                var resource = getResource().result;
+                log('credit', resource['credit']);
             }
         }
     }
