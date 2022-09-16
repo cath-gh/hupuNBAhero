@@ -1,5 +1,0 @@
-var ws=new WebSocket('ws://82.157.123.54:9010/ajaxchattest');
-ws.onsend=function(e){console.log(e.detail);console.log('end')};
-addEventListener('onsend', ws.onsend);
-var _send=ws.send.bind(ws);
-ws.send=function(data){var onsend = new CustomEvent('onsend',{detail:data});dispatchEvent(onsend);_send(data);}
