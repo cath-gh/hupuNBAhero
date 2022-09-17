@@ -2,7 +2,7 @@
 // @version      0.11
 // @description  NBA英雄 websocket
 // @author       Cath
-// @update       1.不能同时建立第二个连接
+// @update       1.原来可以直接监听
 
 // (function () {
 //#region constant
@@ -24,6 +24,7 @@ var urlWebSocket = 'wss://hupu-ws.ttnba.cn:7401/';
 var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
 var urlHome = `${urlHost}${URLPATH_HOME}`;
 var urlPveMatchDetail = `${urlHost}${URLPATH_PVE_MATCH_DETAIL}`;
+var ws={};
 //#endregion
 
 //#region utils
@@ -136,7 +137,8 @@ var wsMsgInit = function (ws) {
             },
             msg_id: 2001
         }
-        ws.send(JSON.stringify(msgInit))
+        ws.send(JSON.stringify(msgInit));
+        log('初始化');
     }
 }
 
@@ -144,19 +146,24 @@ var wsMsgWatchDog = function (ws) {
     if (ws) {
         immediatelyInterval(() => {
             ws.send(JSON.stringify(WS_WATCHDOG));
+            log('心跳保持')
         }, WS_WATCHDOG_INTERVAL)
     }
 }
 
 var taskWebSocket = function () {
-    var ws = initWebSocket(urlWebSocket, null, wsMessage);
+    var $scope = angular.element(document).scope();
+    $scope.socket.onclose=null;
+    $scope.socket.close();
+
+    ws = initWebSocket(urlWebSocket, null, wsMessage);
     wsMsgInit(ws);
     wsMsgWatchDog(ws);
-
 }
 // #endregion
 
 //#region run
-
+var a1=$scope.socket.onmessage;//省大事了
+$scope.socket.onmessage=function(e){console.log('接管了');a1(e);}
     //#endregion
 // }())
