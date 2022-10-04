@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.13
+// @version      0.14
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.修正一处很隐蔽的bug 不同赛季卡牌的id不同 球员不是主键索引
+// @update       1.因为不同等级卡牌球员名称相同 现在使用card_member_id作为索引
 
 (function () {
     //#region constant
@@ -171,7 +171,7 @@
 
     var taskGoldenCardSetStar = function () {
         var cardList = getPlayerCardList(PLAYER_POS['中锋']).result;
-        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '巴姆-阿德巴约' });//阿德巴约
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '3134' });//阿德巴约
 
         for (let i = 0; i < 5; i++) {
             var cardStarList = getPlayerCardStarList(cardMain['id']);
@@ -184,7 +184,7 @@
 
     var taskSilverCardSetStar = function () {
         var cardList = getPlayerCardList(PLAYER_POS['大前']).result;
-        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '劳里-马尔卡宁' });//马尔卡宁
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '45' });//马尔卡宁
 
         for (let i = 0; i < 10; i++) {
             var cardStarList = getPlayerCardStarList(cardMain['id']);
