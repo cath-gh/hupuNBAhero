@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.12
+// @version      0.13
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 调整代码结构，功能逐步添加
+// @update       1. 测试版v2022-10-4-1
 
 (function () {
     //#region constant
@@ -19,6 +19,8 @@
     var token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
     var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
     var urlKillBoss = `${urlHost}${URLPATH_KILL_BOSS}`;
+
+    var validHour = [8, 9, 10, 11, 12, 13, 14];
     //#endregion
 
     //#region utils
@@ -61,6 +63,14 @@
             console.info(value);
         }
     }
+
+    var _setInterval = function (handler, timeout) {
+        var _handler = function () {
+            handler();
+            return handler;
+        }
+        setInterval(_handler(), timeout);
+    }
     //#endregion
 
     //#region method
@@ -76,59 +86,60 @@
         return res;
     }
 
-    //开启循环脚本
-    var intervBoss = setInterval((function close(j) {
-        return function () {
-            taskKillBoss(j)
-        }
-    })(), 4000);
+    var killBoss = function () {
 
-    var taskKillBoss = function () {
-        var Hourset = [9, 10, 11, 12, 13, 14]
-        //调整Hourset[ ]内整点数, 可限定只打某些整点的BOSS,默认全打(外线、锋线BOSS性价比较高)
-        var t = 4000 //初始间隔时间, 默认4秒
-        var Hour = date.getHours()
-        var Minutes = date.getMinutes()
+        var hour = date.getHours();
 
-        // 日常Boss
-        if (((Hourset.indexOf(Hour) > -1)) || (Hourset.indexOf(Hour + 1) > -1 && Minutes >= 49)) {
+        if ((validHour.indexOf(hour) !== -1)) {//在有效的小时范围内
             var res = getKillBoss();
+            log('【killBoss脚本】killBoss状态码', res.status);
             switch (res.status) {
-                case -1200:
-                    console.error('【自动BOSS脚本】token过期，请重新获取')
-                    break
-                case -8409:
-                    if (Hourset.indexOf(Hour + 1) > -1 && Minutes >= 49) {
-                        t = 4000
-                        clearInterval(intervBoss)
-                        intervBoss = setInterval(fn, t)
-                        console.log('【自动BOSS脚本】临近BOSS，开始4秒快刷新模式')
-                        break
+                case 0:
+                    t = 60000;
+                    setTimeout(killBoss, t);
+                    log('【killBoss脚本】挑战Boss');
+                    break;
+                case -8407://正在冷却中
+                    t = 4000;
+                    setTimeout(killBoss, t);
+                    log('【killBoss脚本】Boss正在冷却中');
+                    break;
+                case -8404://Boss已被击杀
+                    if ((validHour.indexOf(hour + 1) !== -1)) {//下一时段在有效范围内
+                        var datetime = new Date();
+                        datetime.setHours(hour + 1);
+                        datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
+                        var delta = datetime - new Date();
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta);
+                        setTimeout(killBoss, delta);
                     } else {
-                        t = 600000
-                        clearInterval(intervBoss)
-                        intervBoss = setInterval(fn, t)
-                        console.log('【自动BOSS脚本】BOSS未开放，进入10分钟刷新模式')
-                        break
+                        log('【killBoss脚本】不在Boss挑战时间范围');
                     }
-                case -8404:
-                    console.log('【自动BOSS脚本】Boss已击败，脚本进入10分钟刷新模式')
-                    t = 600000
-                    clearInterval(intervBoss)
-                    intervBoss = setInterval(fn, t)
-                    break
+                    break;
+                case -8409://当前Boss未开启
+                    if ((validHour.indexOf(hour + 1) !== -1)) {//下一时段在有效范围内
+                        var datetime = new Date();
+                        datetime.setHours(hour + 1);
+                        datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
+                        var delta = datetime - new Date();
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta);
+                        setTimeout(killBoss, delta);
+                    } else {
+                        log('【killBoss脚本】不在Boss挑战时间范围');
+                    }
+                    break;
             }
         } else {
-            t = 600000
-            clearInterval(intervBoss);
-            intervBoss = setInterval(taskKillBoss, t)
-            console.log('【自动BOSS脚本】BOSS不在目标列表内，进入10分钟刷新模式')
+            log('【killBoss脚本】不在Boss挑战时间范围');
         }
-        console.log((date.toLocaleString()) + "\n【自动BOSS脚本】当前刷新频率：", (t / 1000), "秒")
+    }
+
+    var taskKillBoss = function () {
+        killBoss();
     }
     //#endregion
 
     //#region run
-    // taskKillBoss();
+    taskKillBoss();
     //#endregion
 }())
