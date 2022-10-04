@@ -1,10 +1,8 @@
-// 函数首次立即执行
-function callinSound(){
-            var callin=$('#callin')[0];
-            callin.load();
-            callin.play();
-            //第一次执行完成后返回这个函数
-            return callinSound;
+// interval函数首次立即执行
+var _setInterval = function (handler, timeout) {
+    var _handler = function () {
+        handler();
+        return handler;
+    }
+    setInterval(_handler(), timeout);
 }
-
-setInterval(callinSound(),6000);
