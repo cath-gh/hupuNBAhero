@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.12
+// @version      0.13
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.使用匿名函数立即执行，不在污染全局变量
+// @update       1.修正一处很隐蔽的bug 不同赛季卡牌的id不同 球员不是主键索引
 
 (function () {
     //#region constant
@@ -170,8 +170,8 @@
     }
 
     var taskGoldenCardSetStar = function () {
-        var cardList = getPlayerCardList(PLAYER_POS['中锋']);
-        var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3631' });//阿德巴约
+        var cardList = getPlayerCardList(PLAYER_POS['中锋']).result;
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '巴姆-阿德巴约' });//阿德巴约
 
         for (let i = 0; i < 5; i++) {
             var cardStarList = getPlayerCardStarList(cardMain['id']);
@@ -183,8 +183,8 @@
     }
 
     var taskSilverCardSetStar = function () {
-        var cardList = getPlayerCardList(PLAYER_POS['大前']);
-        var cardMain = cardList.result.list.find((item, idx) => { return item['card_id'] === '3708' });//马尔卡宁
+        var cardList = getPlayerCardList(PLAYER_POS['大前']).result;
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '劳里-马尔卡宁' });//马尔卡宁
 
         for (let i = 0; i < 10; i++) {
             var cardStarList = getPlayerCardStarList(cardMain['id']);
@@ -198,6 +198,6 @@
 
     //#region run
     taskGoldenCardSetStar();
-    taskSilverCardSetStar();
+    // taskSilverCardSetStar();
     //#endregion
 }())
