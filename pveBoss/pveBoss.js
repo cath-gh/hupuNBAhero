@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.13
+// @version      0.14
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1. 测试版v2022-10-4-1
+// @update       1.可用版本，效果比翻页版和4s间隔版都要好不少
 
 (function () {
     //#region constant
@@ -15,12 +15,12 @@
     //#endregion
 
     //#region init
-    var date = new Date();
     var token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
     var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
     var urlKillBoss = `${urlHost}${URLPATH_KILL_BOSS}`;
 
     var validHour = [8, 9, 10, 11, 12, 13, 14];
+    var fin=0;
     //#endregion
 
     //#region utils
@@ -63,14 +63,6 @@
             console.info(value);
         }
     }
-
-    var _setInterval = function (handler, timeout) {
-        var _handler = function () {
-            handler();
-            return handler;
-        }
-        setInterval(_handler(), timeout);
-    }
     //#endregion
 
     //#region method
@@ -78,7 +70,7 @@
         var method = 'GET';
         var url = urlKillBoss;
         var queryString = {
-            post_time: date.getTime(),
+            post_time: new Date().getTime(),
             TEAM_USER_TOKEN: token,
             os: 'm'
         };
@@ -87,12 +79,11 @@
     }
 
     var killBoss = function () {
-
-        var hour = date.getHours();
-
-        if ((validHour.indexOf(hour) !== -1)) {//在有效的小时范围内
+        log('【killBoss脚本】进入');
+        if (!fin && validHour.indexOf(new Date().getHours()) !== -1) {//在有效的小时范围内
             var res = getKillBoss();
             log('【killBoss脚本】killBoss状态码', res.status);
+            log(res,'【killBoss脚本】res');
             switch (res.status) {
                 case 0:
                     t = 60000;
@@ -105,24 +96,25 @@
                     log('【killBoss脚本】Boss正在冷却中');
                     break;
                 case -8404://Boss已被击杀
-                    if ((validHour.indexOf(hour + 1) !== -1)) {//下一时段在有效范围内
+                    if ((validHour.indexOf(new Date().getHours() + 1) !== -1)) {//下一时段在有效范围内
                         var datetime = new Date();
-                        datetime.setHours(hour + 1);
+                        datetime.setHours(new Date().getHours() + 1);
                         datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
                         var delta = datetime - new Date();
-                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta);
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta/1000);
                         setTimeout(killBoss, delta);
                     } else {
                         log('【killBoss脚本】不在Boss挑战时间范围');
                     }
+                    log('【killBoss脚本】8404break');
                     break;
                 case -8409://当前Boss未开启
-                    if ((validHour.indexOf(hour + 1) !== -1)) {//下一时段在有效范围内
+                    if ((validHour.indexOf(new Date().getHours() + 1) !== -1)) {//下一时段在有效范围内
                         var datetime = new Date();
-                        datetime.setHours(hour + 1);
+                        datetime.setHours(new Date().getHours() + 1);
                         datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
                         var delta = datetime - new Date();
-                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta);
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta/1000);
                         setTimeout(killBoss, delta);
                     } else {
                         log('【killBoss脚本】不在Boss挑战时间范围');
