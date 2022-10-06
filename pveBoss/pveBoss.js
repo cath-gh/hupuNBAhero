@@ -1,55 +1,10 @@
 // @name         pveBoss
-// @version      0.15
+// @version      0.2
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1.增加websocket监听
+// @update       1.抢Boss测试版
 
 (function (angular, document) {
-    //#region constant
-    const URLPATH_KILL_BOSS = '/PlayerFight/killBoss';
-    //#endregion
-
-    //#region config
-    var server = 'hupu', // 按需设置渠道，'hupu'=虎扑区, 'tt'=微信区
-        service = 1 //按需设置区服, 1即代表XX 1区
-    //#endregion
-
-    //#region init
-    var token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
-    var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
-    var urlKillBoss = `${urlHost}${URLPATH_KILL_BOSS}`;
-
-    var validHour = [8, 9, 10, 11, 12, 13, 14];
-    var fin = 0;
-
-    var leftScore=Number.POSITIVE_INFINITY;
-    var intTimeout=-1;
-    var scope = angular.element(document).scope();
-    var websocket = scope.socket;
-    var _onmessage = websocket.onmessage;
-    var _pre = function (e) {
-        // log('【killBoss脚本】websocket监听预处理开始');
-        var data = JSON.parse(e.data);
-        if (data['msg_id'] === 9001) {
-            log('数据类型',typeof(data['left_score']),);
-            leftScore=parseInt(data['left_score']);
-            log('Boss剩余血量',data['left_score'],);
-
-            if(leftScore===0){
-                clearTimeout(intTimeout);
-                killBoss();
-            }
-        } else {
-            ;//暂留
-        };
-        // log('【killBoss脚本】websocket监听预处理结束');
-    }
-    websocket.onmessage=function(e){
-        _pre(e);
-        _onmessage(e);
-    }
-    //#endregion
-
     //#region utils
     // 定义url字符串拼接的方法
     var concatUrlQuery = function (url, query) {
@@ -90,9 +45,77 @@
             console.info(value);
         }
     }
+
+    var wsMessageStack = {};//消息处理堆栈
+    var wsMessageUse = function (code, fn) {//code:msg_id
+        wsMessageStack[code] = fn;//注册对应code的处理函数fn
+    }
     //#endregion
 
+    //#region constant
+    const URLPATH_KILL_BOSS = '/PlayerFight/killBoss';
+    //#endregion
+
+    //#region config
+    var server = 'hupu', // 按需设置渠道，'hupu'=虎扑区, 'tt'=微信区
+        service = 1; //按需设置区服, 1即代表XX 1区
+    //#endregion
+
+    //#region init
+    var token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
+    var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
+    var urlKillBoss = `${urlHost}${URLPATH_KILL_BOSS}`;
+
+    var validHour = [8, 9, 10, 11, 12, 13, 14];
+    var fin = 0;
+    var leftScore = Number.POSITIVE_INFINITY;
+    var intTimeout = -1;
+
+    log(arguments[2], '【killBoss脚本】传入参数');
+    var stun = arguments[2]?.stun || false;//开启抢Boss为true，默认为false
+    var pauseScore = arguments[2]?.pauseScore || 15000;//暂停挑战Boss，等待最后一次
+    var stunScore = arguments[2]?.stunScore || 4000;//血量小于该数值执行挑战Boss
+    var pause = false;//抢Boss模式下，进入等待状态后置为true，默认为false
+
+    var scope = angular.element(document).scope();
+    var websocket = scope.socket;//获取到游戏自身的websocket
+    var _onmessage = websocket.onmessage;//保存原生onmessage函数
+    
+    websocket.onmessage = function (e) {//插入code处理函数
+        var data = JSON.parse(e.data);
+        if (Object.hasOwn(wsMessageStack, data['msg_id'])) {
+            wsMessageStack[data['msg_id']](data)
+        }
+        _onmessage(e);
+    }
+
+    wsMessageUse(9001, wsKillBoss);
+    //#endregion
+
+    
     //#region method
+    var wsKillBoss = function (data) {
+        // log('【killBoss脚本】websocket监听预处理开始');
+        leftScore = data['left_score'];
+        log('【killBoss脚本】Boss剩余血量', data['left_score']);
+
+        if (stun) {
+            if (!pause && leftScore <= pauseScore) {
+                clearInterval(intTimeout);
+                pause = true;//进入等待状态
+            }
+            if (leftScore <= stunScore) {
+                killBoss();
+            }
+        }
+
+        if (leftScore === 0) {
+            clearTimeout(intTimeout);
+            pause = false;//还原为未等待状态
+            killBoss();
+        }
+    }
+
     var getKillBoss = function () {
         var method = 'GET';
         var url = urlKillBoss;
@@ -161,4 +184,4 @@
     //#region run
     taskKillBoss();
     //#endregion
-}(angular, document))
+}(angular, document, { stun: true, pauseScore: 14500, stunScore: 4100 }))
