@@ -1,10 +1,10 @@
 // @name         pveBoss
-// @version      0.14
+// @version      0.15
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1.可用版本，效果比翻页版和4s间隔版都要好不少
+// @update       1.增加websocket监听
 
-(function () {
+(function (angular, document) {
     //#region constant
     const URLPATH_KILL_BOSS = '/PlayerFight/killBoss';
     //#endregion
@@ -20,7 +20,34 @@
     var urlKillBoss = `${urlHost}${URLPATH_KILL_BOSS}`;
 
     var validHour = [8, 9, 10, 11, 12, 13, 14];
-    var fin=0;
+    var fin = 0;
+
+    var leftScore=Number.POSITIVE_INFINITY;
+    var intTimeout=-1;
+    var scope = angular.element(document).scope();
+    var websocket = scope.socket;
+    var _onmessage = websocket.onmessage;
+    var _pre = function (e) {
+        // log('【killBoss脚本】websocket监听预处理开始');
+        var data = JSON.parse(e.data);
+        if (data['msg_id'] === 9001) {
+            log('数据类型',typeof(data['left_score']),);
+            leftScore=parseInt(data['left_score']);
+            log('Boss剩余血量',data['left_score'],);
+
+            if(leftScore===0){
+                clearTimeout(intTimeout);
+                killBoss();
+            }
+        } else {
+            ;//暂留
+        };
+        // log('【killBoss脚本】websocket监听预处理结束');
+    }
+    websocket.onmessage=function(e){
+        _pre(e);
+        _onmessage(e);
+    }
     //#endregion
 
     //#region utils
@@ -83,16 +110,16 @@
         if (!fin && validHour.indexOf(new Date().getHours()) !== -1) {//在有效的小时范围内
             var res = getKillBoss();
             log('【killBoss脚本】killBoss状态码', res.status);
-            log(res,'【killBoss脚本】res');
+            log(res, '【killBoss脚本】res');
             switch (res.status) {
                 case 0:
                     t = 60000;
-                    setTimeout(killBoss, t);
+                    intTimeout = setTimeout(killBoss, t);
                     log('【killBoss脚本】挑战Boss');
                     break;
                 case -8407://正在冷却中
                     t = 4000;
-                    setTimeout(killBoss, t);
+                    intTimeout = setTimeout(killBoss, t);
                     log('【killBoss脚本】Boss正在冷却中');
                     break;
                 case -8404://Boss已被击杀
@@ -101,8 +128,8 @@
                         datetime.setHours(new Date().getHours() + 1);
                         datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
                         var delta = datetime - new Date();
-                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta/1000);
-                        setTimeout(killBoss, delta);
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta / 1000);
+                        intTimeout = setTimeout(killBoss, delta);
                     } else {
                         log('【killBoss脚本】不在Boss挑战时间范围');
                     }
@@ -114,8 +141,8 @@
                         datetime.setHours(new Date().getHours() + 1);
                         datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
                         var delta = datetime - new Date();
-                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta/1000);
-                        setTimeout(killBoss, delta);
+                        log('【killBoss脚本】等待进入下一轮挑战Boss', delta / 1000);
+                        intTimeout = setTimeout(killBoss, delta);
                     } else {
                         log('【killBoss脚本】不在Boss挑战时间范围');
                     }
@@ -134,4 +161,4 @@
     //#region run
     taskKillBoss();
     //#endregion
-}())
+}(angular, document))
