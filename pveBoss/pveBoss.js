@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.21
+// @version      0.22
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1.修正了进入时间的bug
+// @update       1.调整抢Boss部分代码
 
 (function (angular, document) {
     //#region utils
@@ -105,9 +105,12 @@
                 pause = true;//进入等待状态
                 log('【killBoss脚本】进入等待状态');
             }
-            if (leftScore <= stunScore) {
+            if (pause && leftScore <= stunScore) {
                 log('【killBoss脚本】执行抢Boss');
-                killBoss();
+                var status = killBoss();
+                if (status !== -8407) {//如果还在冷却状态，则维持等待状态
+                    pause = false;//成功执行挑战或者Boss已被击杀，则还原至未等待状态，默认抢Boss仅执行一次;
+                }
             }
         }
 
@@ -161,7 +164,6 @@
                     } else {
                         log('【killBoss脚本】不在Boss挑战时间范围');
                     }
-                    log('【killBoss脚本】8404break');
                     break;
                 case -8409://当前Boss未开启
                     if ((validHour.indexOf(new Date().getHours() + 1) !== -1)) {//下一时段在有效范围内
@@ -176,6 +178,7 @@
                     }
                     break;
             }
+            return res.status;
         } else {
             log('【killBoss脚本】不在Boss挑战时间范围');
         }
@@ -189,4 +192,4 @@
     //#region run
     taskKillBoss();
     //#endregion
-}(angular, document, { stun: false, pauseScore: 40000, stunScore: 4100 }))
+}(angular, document, { stun: false, pauseScore: 40000, stunScore: 4500 }))
