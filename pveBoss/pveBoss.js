@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.2
+// @version      0.21
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1.抢Boss测试版
+// @update       1.修正了进入时间的bug
 
 (function (angular, document) {
     //#region utils
@@ -80,7 +80,7 @@
     var scope = angular.element(document).scope();
     var websocket = scope.socket;//获取到游戏自身的websocket
     var _onmessage = websocket.onmessage;//保存原生onmessage函数
-    
+
     websocket.onmessage = function (e) {//插入code处理函数
         var data = JSON.parse(e.data);
         if (Object.hasOwn(wsMessageStack, data['msg_id'])) {
@@ -89,10 +89,10 @@
         _onmessage(e);
     }
 
-    wsMessageUse(9001, wsKillBoss);
+
     //#endregion
 
-    
+
     //#region method
     var wsKillBoss = function (data) {
         // log('【killBoss脚本】websocket监听预处理开始');
@@ -103,8 +103,10 @@
             if (!pause && leftScore <= pauseScore) {
                 clearInterval(intTimeout);
                 pause = true;//进入等待状态
+                log('【killBoss脚本】进入等待状态');
             }
             if (leftScore <= stunScore) {
+                log('【killBoss脚本】执行抢Boss');
                 killBoss();
             }
         }
@@ -115,6 +117,8 @@
             killBoss();
         }
     }
+
+    wsMessageUse(9001, wsKillBoss);
 
     var getKillBoss = function () {
         var method = 'GET';
@@ -133,6 +137,7 @@
         if (!fin && validHour.indexOf(new Date().getHours()) !== -1) {//在有效的小时范围内
             var res = getKillBoss();
             log('【killBoss脚本】killBoss状态码', res.status);
+            log('【killBoss脚本】killBoss状态消息', res.message || '挑战Boss');
             log(res, '【killBoss脚本】res');
             switch (res.status) {
                 case 0:
@@ -149,8 +154,8 @@
                     if ((validHour.indexOf(new Date().getHours() + 1) !== -1)) {//下一时段在有效范围内
                         var datetime = new Date();
                         datetime.setHours(new Date().getHours() + 1);
-                        datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
-                        var delta = datetime - new Date();
+                        datetime.setMinutes(0, 0, 300);//延迟300ms确保进入下一时段
+                        var delta = datetime - res.server_time * 1000;
                         log('【killBoss脚本】等待进入下一轮挑战Boss', delta / 1000);
                         intTimeout = setTimeout(killBoss, delta);
                     } else {
@@ -162,8 +167,8 @@
                     if ((validHour.indexOf(new Date().getHours() + 1) !== -1)) {//下一时段在有效范围内
                         var datetime = new Date();
                         datetime.setHours(new Date().getHours() + 1);
-                        datetime.setMinutes(0, 0, 100);//延迟100ms确保进入下一时段
-                        var delta = datetime - new Date();
+                        datetime.setMinutes(0, 0, 300);//延迟300ms确保进入下一时段
+                        var delta = datetime - res.server_time * 1000;
                         log('【killBoss脚本】等待进入下一轮挑战Boss', delta / 1000);
                         intTimeout = setTimeout(killBoss, delta);
                     } else {
@@ -184,4 +189,4 @@
     //#region run
     taskKillBoss();
     //#endregion
-}(angular, document, { stun: true, pauseScore: 14500, stunScore: 4100 }))
+}(angular, document, { stun: false, pauseScore: 40000, stunScore: 4100 }))
