@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.14
+// @version      0.2
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.因为不同等级卡牌球员名称相同 现在使用card_member_id作为索引
+// @update       1.测试异步版本，使用fetch替换xmlhttprequest
 
 (function () {
     //#region constant
@@ -78,6 +78,17 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData) {
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+    
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -90,7 +101,7 @@
     //#endregion
 
     //#region method
-    var getPlayerCardList = function (pos, offset = 0, limit = 30, sort = PLAYER_SORT['战力'], type = 'reserve') {
+    var getPlayerCardList = async function (pos, offset = 0, limit = 30, sort = PLAYER_SORT['战力'], type = 'reserve') {
         var method = 'POST';
         var url = urlPlayerCardList;
         var queryString = {
@@ -106,11 +117,12 @@
         data.append('type', type);
         data.append('TEAM_USER_TOKEN', token);
 
-        var res = getXhr(method, url, queryString, data);
+        // var res = getXhr(method, url, queryString, data);
+        var res = await getFetch(method, url, queryString, data);
         return res;
     }
 
-    var getPlayerCardStarList = function (cardId, isPreview = 1, isMemberId = 0, memberId = 0) {
+    var getPlayerCardStarList =async function (cardId, isPreview = 1, isMemberId = 0, memberId = 0) {
         var method = 'POST';
         var url = urlPlayerCardStarList;
         var queryString = {
@@ -125,7 +137,8 @@
         data.append('member_id', memberId);
         data.append('TEAM_USER_TOKEN', token);
 
-        var res = getXhr(method, url, queryString, data);
+        // var res = getXhr(method, url, queryString, data);
+        var res = await getFetch(method, url, queryString, data);
         return res;
     }
 
@@ -148,7 +161,7 @@
         return res;
     }
 
-    var getSetStar = function (cardId, starCardIds, inheritCardId = 0, isDuty = 0) {
+    var getSetStar = async function (cardId, starCardIds, inheritCardId = 0, isDuty = 0) {
         var method = 'POST';
         var url = urlSetStar;
         var queryString = {
@@ -165,31 +178,33 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res =await  getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskGoldenCardSetStar = function () {
-        var cardList = getPlayerCardList(PLAYER_POS['中锋']).result;
+    var taskGoldenCardSetStar = async function () {
+        var cardList = await getPlayerCardList(PLAYER_POS['中锋']);
+        cardList=cardList.result;
         var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '3134' });//阿德巴约
 
         for (let i = 0; i < 5; i++) {
-            var cardStarList = getPlayerCardStarList(cardMain['id']);
+            var cardStarList = await getPlayerCardStarList(cardMain['id']);
             var cardBase = cardStarList.result.card_list[0];
-            var setStar = getSetStar(cardBase['id'], [cardMain['id']]);
+            var setStar = await getSetStar(cardBase['id'], [cardMain['id']]);
             cardMain = cardBase;
         }
 
     }
 
-    var taskSilverCardSetStar = function () {
-        var cardList = getPlayerCardList(PLAYER_POS['大前']).result;
+    var taskSilverCardSetStar = async function () {
+        var cardList = await getPlayerCardList(PLAYER_POS['大前']);
+        cardList=cardList.result;
         var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '45' });//马尔卡宁
 
         for (let i = 0; i < 10; i++) {
-            var cardStarList = getPlayerCardStarList(cardMain['id']);
+            var cardStarList = await getPlayerCardStarList(cardMain['id']);
             var cardBase = cardStarList.result.card_list[0];
-            var setStar = getSetStar(cardBase['id'], [cardMain['id']]);
+            var setStar = await getSetStar(cardBase['id'], [cardMain['id']]);
             cardMain = cardBase;
         }
 
@@ -198,6 +213,6 @@
 
     //#region run
     taskGoldenCardSetStar();
-    // taskSilverCardSetStar();
+    taskSilverCardSetStar();
     //#endregion
 }())
