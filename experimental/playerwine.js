@@ -1,12 +1,12 @@
 // @name         playerwine
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 playerwine
 // @author       Cath
-// @update       1.测试争霸赛领取奖励
+// @update       1.fix
 
 // (function () {
 //#region constant
-const URLPATH_PLAYER_WINE_AWARD = '/Playerwine/award';//争霸赛奖励
+const URLPATH_PLAYER_WINE_REWARD = '/Playerwine/reward';//争霸赛奖励
 //#endregion
 
 //#region config
@@ -18,7 +18,7 @@ var server = 'hupu', // 按需设置渠道，'hupu'=虎扑区, 'tt'=微信区
 var date = new Date();
 var token = localStorage.TEAM_USER_TOKEN.slice(9, -2); //获取token
 var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
-var urlPlayerwineAward = `${urlHost}${URLPATH_PLAYER_WINE_AWARD}`;
+var urlPlayerwineReward = `${urlHost}${URLPATH_PLAYER_WINE_REWARD}`;
 //#endregion
 
 //#region utils
@@ -64,9 +64,9 @@ var log = function (value, comment) {
 //#endregion
 
 //#region method
-var getPlayerwineAward = function () {
+var getPlayerwineReward = function () {
     var method = 'POST';
-    var url = urlPlayerwineAward;
+    var url = urlPlayerwineReward;
     var queryString = {
         post_time: date.getTime(),
         TEAM_USER_TOKEN: token,
@@ -85,6 +85,6 @@ var getPlayerwineAward = function () {
 //#endregion
 
 //#region run
-// getPlayerwineAward();
+// getPlayerwineReward();
     //#endregion
 // }())
