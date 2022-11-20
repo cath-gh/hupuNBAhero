@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.11
+// @version      0.12
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.增加大富翁活动，修正判断是否存在活动
+// @update       1.增加大富翁、巨星挑战活动，修正判断是否存在活动
 
 (function () {
     //#region constant
@@ -33,11 +33,15 @@
         '东南赛区': 5,
         '中部赛区': 6,
     };
-    const URLPATH_ACTICITY_SUBLIST = '/Activity/subList';//季度卡活动
+    const URLPATH_ACTICITY_SUBLIST = '/Activity/subList';//季度卡活动、巨星挑战活动子列表
     const URLPATH_STAGE_AREA_LIST = '/PlayerFight/stageAreaList';//季度卡活动
     const URLPATH_MORE_FIGHT = '/PlayerFight/moreFight';//季度卡活动
     const URLPATH_RICH_NPC_ENTER = '/Activity/richNpcEnter';//大富翁活动选择角色
     const URLPATH_RICH_MOVE = '/Activity/richMove';//大富翁活动移动
+    const URLPATH_LEGEND_STAGE_INDEX = '/activity/getLegendStageIndex';//巨星挑战活动
+    const URLPATH_LEGEND_STAGE_BASEINFO = '/activity/getLegendStageBaseInfo';//巨星挑战活动信息
+    const URLPATH_LEGEND_STAGE_LIST = '/activity/getLegendStageList';//巨星挑战列表
+    const URLPATH_LEGEND_STAGE_FIGHT = '/activity/legendStageFight';//进行巨星挑战
     //#endregion
 
     //#region config
@@ -61,6 +65,10 @@
     var urlMoreFight = `${urlHost}${URLPATH_MORE_FIGHT}`;
     var urlRichNPCEnter = `${urlHost}${URLPATH_RICH_NPC_ENTER}`;
     var urlRichMove = `${urlHost}${URLPATH_RICH_MOVE}`;
+    var urlLegendStageIndex = `${urlHost}${URLPATH_LEGEND_STAGE_INDEX}`;
+    var urlLegendStageBaseinfo = `${urlHost}${URLPATH_LEGEND_STAGE_BASEINFO}`;
+    var urlLegendStageList = `${urlHost}${URLPATH_LEGEND_STAGE_LIST}`;
+    var urlLegendStageFight = `${urlHost}${URLPATH_LEGEND_STAGE_FIGHT}`;
     //#endregion
 
     //#region utils
@@ -316,6 +324,72 @@
         return res;
     }
 
+    var getLegendStageIndex = function (activityId) {
+        var method = 'GET';
+        var url = urlLegendStageIndex;
+        var queryString = {
+            TEAM_USER_TOKEN: token,
+            activity_id: activityId,
+            os: 'm',
+            version: '3.0.0'
+        };
+
+        var res = getXhr(method, url, queryString, null);
+        return res;
+    }
+
+    var getLegendStageBaseinfo = function (activityId, legendStageId = 2) {
+        var method = 'GET';
+        var url = urlLegendStageBaseinfo;
+        var queryString = {
+            TEAM_USER_TOKEN: token,
+            activity_id: activityId,
+            legend_stage_id: legendStageId,
+            os: 'm',
+            version: '3.0.0'
+        };
+
+        var res = getXhr(method, url, queryString, null);
+        return res;
+    }
+
+    var getLegendStageList = function (activityId, legendStageId = 2) {
+        var method = 'GET';
+        var url = urlLegendStageList;
+        var queryString = {
+            TEAM_USER_TOKEN: token,
+            activity_id: activityId,
+            current_stage_id: 0,
+            direction: 0,
+            legend_stage_id: legendStageId,
+            os: 'm',
+            page_num: 10,
+            version: '3.0.0'
+        };
+
+        var res = getXhr(method, url, queryString, null);
+        return res;
+    }
+
+    var getLegendStageFight = function (activityId, stageId) {
+        var method = 'POST';
+        var url = urlLegendStageFight;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityId,
+            stage_id: stageId,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var taskTopic = function () {
         var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
         var activity = activityList.find(item => item['title'].includes('每日签到'));
@@ -383,6 +457,33 @@
             getRichMove(activityId);
         }
     }
+
+    var taskGeneralLegend = function () {//巨星挑战活动
+        var activityList = getActivityIndex(GROUP_ID['常规活动']).result['list'];
+        var activity = activityList.find(item => item['title'].includes('巨星挑战'));
+        if (activity) {
+            var activityId = activity['id'];
+            var stageIndex = getLegendStageIndex(activityId).result;
+
+            //签到
+            var subList = getActicitySubList(activityId).result;
+            var detailId = subList['list'].find(item => item['title'].includes('签到'))['id'];
+            if (subList['red_list'][id]) {//尚未签到则执行
+                var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
+                getActivityReward(rewardId);
+            }
+
+            //挑战
+            var stageBaseinfo = getLegendStageBaseinfo(activityId).result;//默认挑战字母
+            var num = parseInt(stageBaseinfo['player_stage_info']['challenge_times']);//剩余挑战次数
+            var stageList = getLegendStageList(activityId).result['list'];
+            var stageId = parseInt(stageList.find(item => item['is_current'])['id']);
+            for (let i = 0; i < num; i++) {
+                getLegendStageFight(activityId, stageId);
+                stageId += 1;
+            }
+        }
+    }
     //#endregion
 
     //#region run
@@ -391,5 +492,6 @@
     taskSpecialCollection();
     taskSpecialSeason();
     taskGeneralRich();
+    taskGeneralLegend();
     //#endregion
 }())
