@@ -1,16 +1,16 @@
 // @name         activity
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.处理各种活动打卡(每日签到、扑克投票、集卡免费抽卡、季度卡签到、季度卡挑战5次)
+// @update       1.增加大富翁活动，修正判断是否存在活动
 
 (function () {
     //#region constant
     const GROUP_ID = {
-        '常规活动': 1,//general
+        '常规活动': 0,//general
         '专题活动': 2,//topic
         '特殊活动': 3,//special
-        '其他活动': 0,//other
+        '其他活动': 1,//other
     };
     const URLPATH_ACTIVITY_INDEX = '/Activity/index';//获取活动列表
     const URLPATH_ACTIVITY_DETAIL = '/Activity/detail';//获取活动详情
@@ -36,6 +36,8 @@
     const URLPATH_ACTICITY_SUBLIST = '/Activity/subList';//季度卡活动
     const URLPATH_STAGE_AREA_LIST = '/PlayerFight/stageAreaList';//季度卡活动
     const URLPATH_MORE_FIGHT = '/PlayerFight/moreFight';//季度卡活动
+    const URLPATH_RICH_NPC_ENTER = '/Activity/richNpcEnter';//大富翁活动选择角色
+    const URLPATH_RICH_MOVE = '/Activity/richMove';//大富翁活动移动
     //#endregion
 
     //#region config
@@ -57,6 +59,8 @@
     var urlActivitySubList = `${urlHost}${URLPATH_ACTICITY_SUBLIST}`;
     var urlStageAreaList = `${urlHost}${URLPATH_STAGE_AREA_LIST}`;
     var urlMoreFight = `${urlHost}${URLPATH_MORE_FIGHT}`;
+    var urlRichNPCEnter = `${urlHost}${URLPATH_RICH_NPC_ENTER}`;
+    var urlRichMove = `${urlHost}${URLPATH_RICH_MOVE}`;
     //#endregion
 
     //#region utils
@@ -275,50 +279,109 @@
         return res;
     }
 
+    var getRichNPCEnter = function (activityId, npcId) {
+        var method = 'POST';
+        var url = urlRichNPCEnter;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityId,
+            npc_id: npcId,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getRichMove = function (activityId) {
+        var method = 'POST';
+        var url = urlRichMove;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityId,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var taskTopic = function () {
         var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
-        var activityId = activityList.filter(item => item['title'].includes('每日签到'))[0]['id'];
-        var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
-        getActivityReward(rewardId);
+        var activity = activityList.find(item => item['title'].includes('每日签到'));
+        if (activity) {
+            var activityId = activity['id'];
+            var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
+            getActivityReward(rewardId);
+        }
     }
 
     var taskSpecialPoker = function () {//扑克牌
         var activityList = getActivityIndex(GROUP_ID['特殊活动']).result['list'];
-        var activityId = activityList.find(item => item['title'].includes('巅峰扑克牌'))['id'];
-        var pokerList = getActivityPokerList(activityId).result;
-        let cardId = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
-        if (pokerList['remain_time'] === 0) {//有免费票
-            getActivityPoker(pokerList['id'], cardId, 1);
-        }
-        var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
-        var num = pokerList['player_resource'][POKER_TICKET[round]];
-        if (pokerList['player_resource'][POKER_TICKET[round]]) {//剩余票
-            getActivityPoker(pokerList['id'], cardId, num);
+        var activity = activityList.find(item => item['title'].includes('巅峰扑克牌'));
+        if (activity) {
+            var activityId = activity['id'];
+            var pokerList = getActivityPokerList(activityId).result;
+            let cardId = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
+            if (pokerList['remain_time'] === 0) {//有免费票
+                getActivityPoker(pokerList['id'], cardId, 1);
+            }
+            var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
+            var num = pokerList['player_resource'][POKER_TICKET[round]];
+            if (pokerList['player_resource'][POKER_TICKET[round]]) {//剩余票
+                getActivityPoker(pokerList['id'], cardId, num);
+            }
         }
     }
 
     var taskSpecialCollection = function (collectionId = COLLECTION_ID['太平洋赛区']) {//集卡
         var activityList = getActivityIndex(GROUP_ID['特殊活动']).result['list'];
-        var activityType = activityList.find(item => item['title'].includes('集卡'))['type'];
-        var collcetionList = getCollectionList(activityType).result;
-        if (collcetionList['next_interval_time'] === 0) {//存在免费抽卡
-            getGuessCardShop(activityType, collectionId);
+        var activity = activityList.find(item => item['title'].includes('集卡'));
+        if (activity) {
+            var activityType = activity['type'];
+            var collcetionList = getCollectionList(activityType).result;
+            if (collcetionList['next_interval_time'] === 0) {//存在免费抽卡
+                getGuessCardShop(activityType, collectionId);
+            }
         }
     }
 
     var taskSpecialSeason = function () {//季度卡活动
         var activityList = getActivityIndex(GROUP_ID['特殊活动']).result['list'];
-        var activityId = activityList.find(item => item['title'].includes('季度卡'))['id'];
-        var subList = getActicitySubList(activityId).result['list'];
+        var activity = activityList.find(item => item['title'].includes('季度卡'));
+        if (activity) {
+            var activityId = activity['id'];
+            var subList = getActicitySubList(activityId).result['list'];
 
-        var detailId = subList.find(item => item['title'].includes('签到'))['id'];//签到
-        var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
-        getActivityReward(rewardId);
+            var detailId = subList.find(item => item['title'].includes('签到'))['id'];//签到
+            var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
+            getActivityReward(rewardId);
 
-        var detailLinkId = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
-        var stageAreaList = getStageAreaList(detailLinkId[2], detailLinkId[0], detailLinkId[1]).result;
-        var stageId = stageAreaList['stage_list'][4]['id'];//最后一关id
-        getMoreFight(stageId, stageAreaList['challenge_times']);
+            var detailLinkId = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
+            var stageAreaList = getStageAreaList(detailLinkId[2], detailLinkId[0], detailLinkId[1]).result;
+            var stageId = stageAreaList['stage_list'][4]['id'];//最后一关id
+            getMoreFight(stageId, stageAreaList['challenge_times']);
+        }
+    }
+
+    var taskGeneralRich = function () {//大富翁活动
+        var activityList = getActivityIndex(GROUP_ID['常规活动']).result['list'];
+        var activity = activityList.find(item => item['title'].includes('大富翁'));
+        if (activity && activity['has_free']) {//存在活动且有免费次数
+            var activityId = activity['id'];
+            getRichNPCEnter(activityId, 1);//默认选择第一个角色
+            getRichMove(activityId);
+        }
     }
     //#endregion
 
@@ -327,5 +390,6 @@
     taskSpecialPoker();
     taskSpecialCollection();
     taskSpecialSeason();
+    taskGeneralRich();
     //#endregion
 }())
