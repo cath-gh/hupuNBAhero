@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.12
+// @version      0.12b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.增加大富翁、巨星挑战活动，修正判断是否存在活动
+// @update       1.修正id引用错误
 
 (function () {
     //#region constant
@@ -468,7 +468,7 @@
             //签到
             var subList = getActicitySubList(activityId).result;
             var detailId = subList['list'].find(item => item['title'].includes('签到'))['id'];
-            if (subList['red_list'][id]) {//尚未签到则执行
+            if (subList['red_list'][detailId]) {//尚未签到则执行
                 var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
                 getActivityReward(rewardId);
             }
