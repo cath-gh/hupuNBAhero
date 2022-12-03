@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.12b
+// @version      0.13
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修正id引用错误
+// @update       1.修改巨星挑战默认参数逻辑
 
 (function () {
     //#region constant
@@ -338,7 +338,7 @@
         return res;
     }
 
-    var getLegendStageBaseinfo = function (activityId, legendStageId = 2) {
+    var getLegendStageBaseinfo = function (activityId, legendStageId) {
         var method = 'GET';
         var url = urlLegendStageBaseinfo;
         var queryString = {
@@ -353,7 +353,7 @@
         return res;
     }
 
-    var getLegendStageList = function (activityId, legendStageId = 2) {
+    var getLegendStageList = function (activityId, legendStageId) {
         var method = 'GET';
         var url = urlLegendStageList;
         var queryString = {
@@ -474,13 +474,14 @@
             }
 
             //挑战
-            var stageBaseinfo = getLegendStageBaseinfo(activityId).result;//默认挑战字母
+            var stageBaseinfo = getLegendStageBaseinfo(activityId, 2).result;//默认挑战字母
             var num = parseInt(stageBaseinfo['player_stage_info']['challenge_times']);//剩余挑战次数
-            var stageList = getLegendStageList(activityId).result['list'];
-            var stageId = parseInt(stageList.find(item => item['is_current'])['id']);
+            var stageList = getLegendStageList(activityId, 2).result['list'];//默认挑战字母
+            // var stageId = parseInt(stageList.find(item => item['is_current'])['id']);
+            var stageId = 2105;//挑战指定关卡
             for (let i = 0; i < num; i++) {
                 getLegendStageFight(activityId, stageId);
-                stageId += 1;
+                // stageId += 1;
             }
         }
     }
