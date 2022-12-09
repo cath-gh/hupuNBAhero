@@ -5,7 +5,7 @@
  - 启用功能归档
 
 ### Experimental
-- 实验性质文件夹，简称为`experi`
+- 实验性质文件夹，简称为`exper`
 - 新特性
 
 ### Snippets
