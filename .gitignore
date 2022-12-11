@@ -3,6 +3,7 @@
 # temp
 *.xls
 *.xlsx
+*.csv
 
 # Logs
 logs
