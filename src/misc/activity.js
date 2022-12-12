@@ -1,9 +1,8 @@
 // @name         activity
-// @version      0.14
+// @version      0.15
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.特殊活动更名为充值活动
-// @update       2.增加7日签到活动
+// @update       1.bug fix
 
 (function () {
     //#region constant
@@ -455,7 +454,7 @@
         var activity = activityList.find(item => item['title'].includes('7日签到'));
         if (activity) {
             var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '0');
+            var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
             if (rewardId) getActivityReward(rewardId['id']);
         }
     }
