@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.15
+// @version      0.15b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.bug fix
+// @update       1.修复活动位置变更问题
 
 (function () {
     //#region constant
@@ -391,7 +391,7 @@
     }
 
     var taskTopic = function () {
-        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
+        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
         var activity = activityList.find(item => item['title'].includes('每日签到'));
         if (activity) {
             var activityId = activity['id'];
@@ -419,7 +419,7 @@
     }
 
     var taskSpecialCollection = function (collectionId = COLLECTION_ID['太平洋赛区']) {//集卡
-        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
+        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
         var activity = activityList.find(item => item['title'].includes('集卡'));
         if (activity) {
             var activityType = activity['type'];
@@ -431,7 +431,7 @@
     }
 
     var taskSpecialSeason = function () {//季度卡活动
-        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
+        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
         var activity = activityList.find(item => item['title'].includes('季度卡'));
         if (activity) {
             var activityId = activity['id'];
