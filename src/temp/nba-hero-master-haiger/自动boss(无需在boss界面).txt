@@ -1,0 +1,21 @@
+(function () {
+        let service = 1 // 区服
+        let min = 15 // 超过这个分钟自动停止脚本，即只在0-15分内打，60则为不限制
+        setInterval(() => {
+            var xmlHttp = new XMLHttpRequest();
+            var timer = new Date()
+            if (timer.getMinutes() <= min && timer.getMinutes() >= 0) {
+                xmlHttp.open('GET',
+                    `https://hupu${service == 1 ? '' : service}-api.ttnba.cn/PlayerFight/killBoss?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${JSON.parse(localStorage.getItem('TEAM_USER_TOKEN'))['170' + service]}&os=m`,
+                    false)
+                xmlHttp.send(null)
+                var res = JSON.parse(xmlHttp.responseText);
+                console.log(res)
+                if (res.status == -1200) {
+                    console.error('token过期，请重新获取')
+                }
+            }
+            console.log('已开启自动挑战...', timer)
+        }, 5000)
+    }())

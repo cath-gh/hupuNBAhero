@@ -1,0 +1,93 @@
+(function () {
+  const service = 1; // 区服
+  const token = JSON.parse(localStorage.getItem("TEAM_USER_TOKEN"))[
+    "170" + service
+  ];
+  let lineup_id = "";
+  function getMainHead() {
+    let xmlHttp = new XMLHttpRequest();
+    let timer = new Date();
+    xmlHttp.open(
+      "POST",
+      `https://hupu${
+        service == 1 ? "" : service
+      }-api.ttnba.cn/playerfight/mainHead?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+      false
+    );
+    let formData = new FormData();
+    formData.append("TEAM_USER_TOKEN", token);
+    formData.append("is_advance", "0");
+    xmlHttp.send(formData);
+    let res = JSON.parse(xmlHttp.responseText);
+    if (res.status == 0) {
+      getCoach(res.result.lineup_id);
+    }
+  }
+  function getCoach(id) {
+    let xmlHttp = new XMLHttpRequest();
+    let timer = new Date();
+    xmlHttp.open(
+      "POST",
+      `https://hupu${
+        service == 1 ? "" : service
+      }-api.ttnba.cn/coach/viewLineup?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+      false
+    );
+    let formData = new FormData();
+    formData.append("TEAM_USER_TOKEN", token);
+    formData.append("lineup_id", id);
+    xmlHttp.send(formData);
+    let res = JSON.parse(xmlHttp.responseText);
+    if (res.status == 0) {
+      res.result.list.map((item) => {
+        lineupCoach(item.info.id, item.pos);
+      });
+    }
+  }
+  function getYokeStageList() {
+    let xmlHttp = new XMLHttpRequest();
+    let timer = new Date();
+    xmlHttp.open(
+      "GET",
+      `https://hupu${
+        service == 1 ? "" : service
+      }-api.ttnba.cn/Playeryoke/getYokeStageList?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+      false
+    );
+    xmlHttp.send(null);
+    let res = JSON.parse(xmlHttp.responseText);
+    if (res.status == 0) {
+      lineup_id = res.result.challenge_info.lineup_id;
+      getMainHead();
+    }
+  }
+  function lineupCoach(id, pos) {
+    let xmlHttp = new XMLHttpRequest();
+    let timer = new Date();
+    xmlHttp.open(
+      "POST",
+      `https://hupu${
+        service == 1 ? "" : service
+      }-api.ttnba.cn/coach/lineup?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+      false
+    );
+    let formData = new FormData();
+    formData.append("TEAM_USER_TOKEN", token);
+    formData.append("lineup_id", lineup_id);
+    formData.append("pos", pos);
+    formData.append("card_id", id);
+    formData.append("card_member_trial_id", null);
+    xmlHttp.send(formData);
+    let res = JSON.parse(xmlHttp.responseText);
+    if (res.status == 0) {
+      console.log(`${pos}号位教练上阵成功`);
+    } else {
+      console.error(pos + "号位教练" + res.message);
+    }
+  }
+  getYokeStageList();
+})();

@@ -1,0 +1,72 @@
+(function () {
+    const service = 1 // 区服
+    const team = '湖人' // 查询的球队
+    const month = 2 // 查询的月份
+    const stage = 11 // 该月份下的第几个关卡
+    const token = JSON.parse(localStorage.getItem('TEAM_USER_TOKEN'))['170' + service]
+    const a = [10, 11, 12, 1, 2, 3, 4]
+    var pid = a.findIndex(a => { return a == month }) + 1
+    function getTeamList() {
+        let xmlHttp = new XMLHttpRequest();
+        let timer = new Date()
+        xmlHttp.open('GET',
+            `https://hupu${service == 1 ? '' : service}-api.ttnba.cn/Seasontrial/index?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+            false)
+        let formData = new FormData()
+        formData.append('TEAM_USER_TOKEN', token)
+        xmlHttp.send(formData)
+        let res = JSON.parse(xmlHttp.responseText);
+        if (res.status == 0) {
+            res.result.team_list.map(item => {
+                if (item.name == team) {
+                    getStageList(item.team_id)
+                }
+            })
+        }
+    }
+    function getStageList(id) {
+        let xmlHttp = new XMLHttpRequest();
+        let timer = new Date()
+        xmlHttp.open('post',
+            `https://hupu${service == 1 ? '' : service}-api.ttnba.cn/Seasontrial/getTeamStageList?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+            false)
+        let formData = new FormData()
+        console.log(id)
+        formData.append('TEAM_USER_TOKEN', token)
+        formData.append('team_id', id)
+        formData.append('p_id', pid)
+        xmlHttp.send(formData)
+        let res = JSON.parse(xmlHttp.responseText);
+        if (res.status == 0) {
+            getStageDetail(res.result.stage_list[stage - 1].id)
+        }
+    }
+    function getStageDetail(id) {
+        let xmlHttp = new XMLHttpRequest();
+        let timer = new Date()
+        xmlHttp.open('post',
+            `https://hupu${service == 1 ? '' : service}-api.ttnba.cn/Seasontrial/stageInfo?post_time=${timer.getTime()}
+        &TEAM_USER_TOKEN=${token}&os=m`,
+            false)
+        let formData = new FormData()
+        console.log(id)
+        formData.append('TEAM_USER_TOKEN', token)
+        formData.append('stage_id', id)
+        xmlHttp.send(formData)
+        let res = JSON.parse(xmlHttp.responseText);
+        console.log(res)
+        if (res.status == 0) {
+            let data = res.result
+            let str = data.name + ':'
+            let ab = 0
+            res.result.npc_list.map(item => {
+                ab += item.ability
+                str += (item.name + '-' + item.ability + ';')
+            })
+            alert('总战力:' + ab + '\n' + str)
+        }
+    }
+    getTeamList()
+}())

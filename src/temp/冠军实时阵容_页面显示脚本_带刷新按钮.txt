@@ -1,0 +1,120 @@
+
+(function () {
+    var serv = 'hupu' // 按需设置渠道，'hupu'=虎扑区, 'wx'=微信区
+    var service = 1 //按需设置区服, 1即代表XX 1区
+
+    var servURL
+    switch (serv) {
+        case 'hupu':
+            servURL = 'hupu'+`${service==1?'':service}`+'-api.ttnba.cn'
+            break;
+        case 'wx':
+            servURL = 'tt'+`${service==1?'':service}`+'-api.ttnba.cn'
+            break;
+    }
+    let timer = setTimeout(() => {
+        clearTimeout(timer)
+        if (document.getElementsByClassName("champion_guess_time_content_right ng-binding").length) {
+            //添加刷新按键, 触发刷新函数
+            var div3 = document.createElement("input")
+            div3.type = "button"
+            div3.value = "刷新战力"
+            div3.style.cssText = 'color: White; font-size: 12px; font-weight: Bold; width: 55px; background: rgb(222,24,61); float: right;'
+            div3.onclick = (function close(j) {
+                return function () {
+                    refresh(servURL)
+                }
+            })(service)
+            document.getElementsByClassName("champion_guess_time_content")[0].appendChild(div3)
+            //alert("实时战力成功刷新。")
+            var matchno = 2**(6-searchstart(servURL)[0])
+            for (var i = 0; i < matchno; i++) {
+                //添加场次序号
+                var div = document.getElementsByClassName('champion_guess_item')[i]
+                div.style.cssText = 'display: table; text-align: center;'
+                var div2 = document.createElement("input")
+                div2.type = "button"
+                div2.className = "vsorder"
+                div2.value = (i+1).toString()
+                div2.style.cssText = 'color: white; font-size: 18px; font-weight: Bold; width: 40px; background: #de183d ;'
+                /*  div2.onclick = function(i) {
+                    switch(this.getElementsByClassName('vsorder')[i].style.color) {
+                        case 'white':
+                            this.getElementsByClassName("vsorder")[i].cssText = 'color: yellow; font-size: 18px; font-weight: Bold; width: 40px; background: red;'
+                            break;
+                        case 'yellow':
+                            this.getElementsByClassName("vsorder")[i].cssText = 'color: white; font-size: 18px; font-weight: Bold; width: 40px; background: #9e9e9e ;'
+                            break;
+                    }
+                } */
+                div.appendChild(div2)
+            }
+        } else {
+            alert("请进入当前轮次的下注页面运行此脚本。")
+        }
+    },1000)
+    })();
+
+// 函数 获取实时战力 刷新战力
+function refresh(servURL) {
+    var xmlHttp = new XMLHttpRequest();
+    var round = searchstart(servURL)[0] //当前轮数
+    var scheduleid_Start = parseInt(searchstart(servURL)[1]) + (64 - 2**(7-round)) //起始比赛ID计算
+    var matchno = 2 ** (6-round) //当前轮比赛数
+    var str = [] //str存json数组
+    //获取主客队战力
+    for (var i = 0 ; i < matchno; i++) {
+        xmlHttp.open('POST', `https://`+servURL+`/Playerchampionsleague/getChampionsScheduleInfo?post_time=${new Date().getTime()}&TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=hupu`,false)
+        xmlHttp.setRequestHeader ('Content-type', 'application/x-www-form-urlencoded');
+        xmlHttp.send("schedule_id="+(i+scheduleid_Start)+"&TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}")
+        var info = xmlHttp.responseText
+        var o = JSON.parse(xmlHttp.responseText)
+        var div = document.getElementsByClassName('champion_guess_item')[i]
+
+        //高亮战力高的一方
+        if (parseInt(o.result.guest_ability) > parseInt(o.result.host_ability) ){
+            div.children[3].style.cssText = 'color: Yellow; font-weight: Bold; font-size: 14px;'
+            div.children[10].style.cssText = ''//左大于右
+        }
+        else if (parseInt(o.result.guest_ability) < parseInt(o.result.host_ability) ){
+            div.children[3].style.cssText = ''
+            div.children[10].style.cssText = 'color: Yellow; font-weight: Bold; font-size: 14px;' //右大于左
+        }
+        else {
+            div.children[3].style.cssText = 'color: Yellow; font-weight: Bold; font-size: 14px;'
+            div.children[10].style.cssText = 'color: Yellow; font-weight: Bold; font-size: 14px;' //左右相等
+        }
+
+        //替换实时战力
+        div.children[3].innerText = "实时:"+o.result.guest_ability
+        div.children[10].innerText = "实时:"+o.result.host_ability
+    }
+    // 高亮战力刷新时间点
+    document.getElementsByClassName("champion_guess_table_item")[1].innerText = new Date().toLocaleString()+"刷新"
+    document.getElementsByClassName("champion_guess_table_item")[1].style.cssText = 'color: Yellow; font-size: 13px;'
+
+}
+// 函数 点击序号 高亮序号
+/* function highlight(i, color){
+    switch(color) {
+        case 'white':
+            document.getElementsByClassName("vsorder")[i].cssText = 'color: yellow; font-size: 18px; font-weight: Bold; width: 40px; background: red;'
+            break;
+        case 'yellow':
+            document.getElementsByClassName("vsorder")[i].cssText = 'color: white; font-size: 18px; font-weight: Bold; width: 40px; background: #9e9e9e ;'
+            break;
+    }
+} */
+
+
+//函数 抓取比赛ID及当前轮次
+function searchstart(servURL) {
+    var xmlHttp1 = new XMLHttpRequest();
+    xmlHttp1.open('POST',`https://`+servURL+`/Playerchampionsleague/getChampionsScheduleList?post_time=${new Date().getTime()}&TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))[0]}&os=hupu`,false)
+    xmlHttp1.setRequestHeader ('Content-type', 'application/x-www-form-urlencoded');
+    xmlHttp1.send("round=1&TEAM_USER_TOKEN=${Object.values(JSON.parse(localStorage.getItem('TEAM_USER_TOKEN')))}")
+    var o1 = JSON.parse(xmlHttp1.responseText)
+    return [o1.result.current_round, o1.result.schedule_list[0].schedule_id]
+    //console.log(o.result.schedule_list[0].schedule_id)
+}
+

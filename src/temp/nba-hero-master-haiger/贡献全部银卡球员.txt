@@ -1,0 +1,60 @@
+(async function () {
+  const service = 1 // 区服
+  const token = JSON.parse(localStorage.getItem('TEAM_USER_TOKEN'))['170' + service]
+
+  function getAbortCpCardList() {
+    let xmlHttp = new XMLHttpRequest();
+    let timer = new Date()
+    xmlHttp.open('POST',
+      `https://hupu${service==1?'':service}-api.ttnba.cn/Sociaty/getAbortCpCardList?post_time=${timer.getTime()}&TEAM_USER_TOKEN=${token}&os=m`,
+      false)
+    let formData = new FormData()
+    formData.append('TEAM_USER_TOKEN', token)
+    formData.append('offset', 0)
+    formData.append('limit', 50)
+    formData.append('sort', 1)
+    formData.append('desc', 1)
+    formData.append('quality', 151)
+    xmlHttp.send(formData)
+    let res = JSON.parse(xmlHttp.responseText);
+    if (res.result.list) {
+      let q = 1
+      let arr = []
+      for (let i in res.result.list) {
+        if (q < 3) {
+          arr.push(res.result.list[i].id)
+          q++
+          if (i == res.result.list.length - 1) {
+            arr.push(res.result.list[i].id)
+            setAbortCpCard(arr.slice(0))
+          }
+        } else if (q == 3) {
+          arr.push(res.result.list[i].id)
+          setAbortCpCard(arr.slice(0))
+          q = 1
+          arr = []
+        }
+      }
+    }
+  }
+
+  function setAbortCpCard(ids) {
+    return new Promise((resolve, reject) => {
+      let xmlHttp = new XMLHttpRequest();
+      let timer = new Date()
+      xmlHttp.open('POST',
+        `https://hupu${service==1?'':service}-api.ttnba.cn/Sociaty/setAbortCpCard?post_time=${timer.getTime()}&TEAM_USER_TOKEN=${token}&os=m`,
+        false)
+      let formData = new FormData()
+      formData.append('TEAM_USER_TOKEN', token)
+      formData.append('cost_credit', 0)
+      for (let i in ids) {
+        formData.append('card_id[' + i + ']', ids[i])
+      }
+      xmlHttp.send(formData)
+      let res = JSON.parse(xmlHttp.responseText);
+      resolve(res.result)
+    })
+  }
+  getAbortCpCardList()
+}())
