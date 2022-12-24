@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.15b
+// @version      0.16
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修复活动位置变更问题
+// @update       1.统一处理各种每日签到
 
 (function () {
     //#region constant
@@ -392,11 +392,18 @@
 
     var taskTopic = function () {
         var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('每日签到'));
-        if (activity) {
-            var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
-            getActivityReward(rewardId);
+        // var activity = activityList.find(item => item['title'].includes('每日签到'));
+        var activity = activityList.filter(item => item['title'].includes('每日签到'));
+        // if (activity) {
+        if (activity.lendth) {
+            activity.map(item => {
+                var activityId = item['id'];
+                var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
+                getActivityReward(rewardId);
+            })
+            // var activityId = activity['id'];
+            // var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
+            // getActivityReward(rewardId);
         }
     }
 
