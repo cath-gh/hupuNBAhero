@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.16
+// @version      0.16b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.统一处理各种每日签到
+// @update       1.修正一处拼写错误
 
 (function () {
     //#region constant
@@ -395,7 +395,7 @@
         // var activity = activityList.find(item => item['title'].includes('每日签到'));
         var activity = activityList.filter(item => item['title'].includes('每日签到'));
         // if (activity) {
-        if (activity.lendth) {
+        if (activity.length) {
             activity.map(item => {
                 var activityId = item['id'];
                 var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
