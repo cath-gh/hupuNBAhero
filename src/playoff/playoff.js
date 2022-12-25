@@ -1,8 +1,8 @@
 // @name         playoff
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 playoff
 // @author       Cath
-// @update       1. 收集工会战各公会战力
+// @update       1. 增加userCode、countryId、CountrySeed、LastLogin列
 
 (function () {
     //#region constant
@@ -84,7 +84,7 @@
     }
 
     var taskPlayoff = function () {
-        var header = `序号,公会,ID,战力`;
+        var header = `序号,公会,用户名,战力,UserCode,CountryID,CountryRank,LastLogin`;
         var line = '';
         var arr = [];
         var idx = 1;
@@ -95,7 +95,10 @@
             for (let j = 0; j < 2; j++) {
                 var sociatyName = match['players'][j]['sociaty_info']['name'];
                 list[j].map(item => {
-                    line = `${idx},${sociatyName},${item['player_name']},${item['ability']}`;
+                    let countryId = item['country_id'] ?? -1;
+                    let countrySeed = item['country_seed'] === '0' ? 999 : item['country_seed'] ?? -1;
+                    let lastLogin = new Date(item['last_login_time'] * 1000).toLocaleDateString();
+                    line = `${idx},${sociatyName},${item['player_name']},${item['ability']},${item['user_code']},${countryId},${countrySeed},${lastLogin}`;
                     arr.push(line);
                     idx += 1;
                 })
