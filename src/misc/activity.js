@@ -1,5 +1,5 @@
 // @name         activity
-// @version      0.16
+// @version      0.17
 // @description  NBA英雄 activity
 // @author       Cath
 // @update       1.增加7日签到活动
@@ -392,11 +392,18 @@
 
     var taskTopic = function () {
         var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('每日签到'));
-        if (activity) {
-            var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
-            getActivityReward(rewardId);
+        // var activity = activityList.find(item => item['title'].includes('每日签到'));
+        var activity = activityList.filter(item => item['title'].includes('每日签到'));
+        // if (activity) {
+        if (activity.length) {
+            activity.map(item => {
+                var activityId = item['id'];
+                var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
+                getActivityReward(rewardId);
+            })
+            // var activityId = activity['id'];
+            // var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
+            // getActivityReward(rewardId);
         }
     }
 
@@ -509,12 +516,13 @@
     //#endregion
 
     //#region run
-    // taskTopic();
-    // taskSpecialPoker();
-    // taskSpecialCollection();
-    // taskSpecialSeason();
-    // taskSpecialSignSeven();
-    // taskGeneralRich();
-    // taskGeneralLegend();
+    taskTopic();
+    taskSpecialPoker();
+    taskSpecialCollection();
+    taskSpecialSeason();
+    taskSpecialSignSeven();
+    taskSpecialSignSeven2();
+    taskGeneralRich();
+    taskGeneralLegend();
     //#endregion
-// }())
+}())
