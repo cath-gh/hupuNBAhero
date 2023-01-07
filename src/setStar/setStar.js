@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.21
+// @version      0.22
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.继续测试异步版本，上一版本的问题是完成次数少于指定次数
+// @update       1.修改卡牌定位方式为球员名，修改offset限制
 
 (async function () {
     //#region constant
@@ -101,7 +101,7 @@
     //#endregion
 
     //#region method
-    var getPlayerCardList = async function (pos, offset = 0, limit = 30, sort = PLAYER_SORT['战力'], type = 'reserve') {
+    var getPlayerCardList = async function (pos, offset = 0, limit = 100, sort = PLAYER_SORT['战力'], type = 'reserve') {
         var method = 'POST';
         var url = urlPlayerCardList;
         var queryString = {
@@ -185,7 +185,7 @@
     var taskGoldenCardSetStar = async function () {
         var cardList = await getPlayerCardList(PLAYER_POS['中锋']);
         cardList=cardList.result;
-        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '3134' });//阿德巴约
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '巴姆-阿德巴约' });//阿德巴约
 
         for (let i = 0; i < 5; i++) {
             log(`金卡第${i+1}次进入`);
@@ -203,7 +203,7 @@
     var taskSilverCardSetStar = async function () {
         var cardList = await getPlayerCardList(PLAYER_POS['大前']);
         cardList=cardList.result;
-        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['card_member_id'] === '45' });//马尔卡宁
+        var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '劳里-马尔卡宁' });//马尔卡宁
 
         for (let i = 0; i < 10; i++) {
             log(`银卡第${i+1}次进入`);
