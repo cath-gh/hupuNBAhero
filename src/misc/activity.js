@@ -1,8 +1,9 @@
 // @name         activity
-// @version      0.17b
+// @version      0.18
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.增加7日签到活动
+// @update       1.整体获取活动列表，统一处理每日签到、7日签到等活动
+// @update       2.修改扑克牌投票对象为列表第一位
 
 (function () {
     //#region constant
@@ -389,44 +390,44 @@
         var res = getXhr(method, url, queryString, JSON.stringify(data));
         return res;
     }
+    var activityList = [];
+    var taskGetActivityIndex = function () {
+        for (value of Object.values(GROUP_ID)) {
+            let list = getActivityIndex(value).result['list'];
+            activityList = activityList.concat(list);
+        }
+    }
 
-    var taskTopic = function () {
-        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
-        // var activity = activityList.find(item => item['title'].includes('每日签到'));
+    var taskDailySign = function () {
         var activity = activityList.filter(item => item['title'].includes('每日签到'));
-        // if (activity) {
         if (activity.length) {
             activity.map(item => {
                 var activityId = item['id'];
                 var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
                 getActivityReward(rewardId);
             })
-            // var activityId = activity['id'];
-            // var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
-            // getActivityReward(rewardId);
         }
     }
 
-    var taskSpecialPoker = function () {//扑克牌
-        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('巅峰扑克牌'));
+    var taskPoker = function () {//扑克牌
+        var activity = activityList.find(item => item['title'].includes('扑克牌'));
         if (activity) {
             var activityId = activity['id'];
             var pokerList = getActivityPokerList(activityId).result;
-            let cardId = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
+            // let cardId = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
+            let cardId = pokerList['card_list'][0]['id'];//就投第一个
             if (pokerList['remain_time'] === 0) {//有免费票
                 getActivityPoker(pokerList['id'], cardId, 1);
             }
             var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
             var num = pokerList['player_resource'][POKER_TICKET[round]];
-            if (pokerList['player_resource'][POKER_TICKET[round]]) {//剩余票
+            if (num) {//剩余票
                 getActivityPoker(pokerList['id'], cardId, num);
             }
         }
     }
 
-    var taskSpecialCollection = function (collectionId = COLLECTION_ID['太平洋赛区']) {//集卡
-        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
+    var taskCollection = function (collectionId = COLLECTION_ID['太平洋赛区']) {//集卡
         var activity = activityList.find(item => item['title'].includes('集卡'));
         if (activity) {
             var activityType = activity['type'];
@@ -437,8 +438,7 @@
         }
     }
 
-    var taskSpecialSeason = function () {//季度卡活动
-        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
+    var taskSeason = function () {//季度卡活动
         var activity = activityList.find(item => item['title'].includes('季度卡'));
         if (activity) {
             var activityId = activity['id'];
@@ -455,39 +455,18 @@
         }
     }
 
-
-    var taskSpecialSignSeven = function () {//七日签到活动
-        var activityList = getActivityIndex(GROUP_ID['充值活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('7日签到'));
-        if (activity) {
-            var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
-            if (rewardId) getActivityReward(rewardId['id']);
+    var taskSevenSign = function () {//七日签到活动
+        var activity = activityList.filter(item => item['title'].includes('7日签到'));
+        if (activity.length) {
+            activity.map(item => {
+                var activityId = item['id'];
+                var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
+                if (rewardId) getActivityReward(rewardId['id']);
+            })
         }
     }
 
-    var taskSpecialSignSeven2 = function () {//七日签到活动
-        var activityList = getActivityIndex(GROUP_ID['专题活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('7日签到'));
-        if (activity) {
-            var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
-            if (rewardId) getActivityReward(rewardId['id']);
-        }
-    }
-
-    var taskSpecialSignSeven3 = function () {//七日签到活动
-        var activityList = getActivityIndex(GROUP_ID['常规活动']).result['list'];
-        var activity = activityList.find(item => item['title'].includes('7日签到'));
-        if (activity) {
-            var activityId = activity['id'];
-            var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
-            if (rewardId) getActivityReward(rewardId['id']);
-        }
-    }
-
-    var taskGeneralRich = function () {//大富翁活动
-        var activityList = getActivityIndex(GROUP_ID['常规活动']).result['list'];
+    var taskRich = function () {//大富翁活动
         var activity = activityList.find(item => item['title'].includes('大富翁'));
         if (activity && activity['has_free']) {//存在活动且有免费次数
             var activityId = activity['id'];
@@ -496,8 +475,7 @@
         }
     }
 
-    var taskGeneralLegend = function () {//巨星挑战活动
-        var activityList = getActivityIndex(GROUP_ID['常规活动']).result['list'];
+    var taskLegend = function () {//巨星挑战活动
         var activity = activityList.find(item => item['title'].includes('巨星挑战'));
         if (activity) {
             var activityId = activity['id'];
@@ -526,14 +504,13 @@
     //#endregion
 
     //#region run
-    taskTopic();
-    taskSpecialPoker();
-    taskSpecialCollection();
-    taskSpecialSeason();
-    taskSpecialSignSeven();
-    taskSpecialSignSeven2();
-    taskSpecialSignSeven3();
-    taskGeneralRich();
-    taskGeneralLegend();
+    taskGetActivityIndex();
+    taskDailyTopic();
+    taskPoker();
+    taskCollection();
+    taskSeason();
+    taskSevenSign();
+    taskRich();
+    taskLegend();
     //#endregion
 }())
