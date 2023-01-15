@@ -1,9 +1,8 @@
 // @name         activity
-// @version      0.18
+// @version      0.18b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.整体获取活动列表，统一处理每日签到、7日签到等活动
-// @update       2.修改扑克牌投票对象为列表第一位
+// @update       1.修正一处拼写错误
 
 (function () {
     //#region constant
@@ -505,7 +504,7 @@
 
     //#region run
     taskGetActivityIndex();
-    taskDailyTopic();
+    taskDailySign();
     taskPoker();
     taskCollection();
     taskSeason();
