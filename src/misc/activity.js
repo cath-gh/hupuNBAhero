@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.18b
+// @version      0.18c
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修正一处拼写错误
+// @update       1.no fix
 
 (function () {
     //#region constant
@@ -426,7 +426,7 @@
         }
     }
 
-    var taskCollection = function (collectionId = COLLECTION_ID['太平洋赛区']) {//集卡
+    var taskCollection = function (collectionId = COLLECTION_ID['西南赛区']) {//集卡
         var activity = activityList.find(item => item['title'].includes('集卡'));
         if (activity) {
             var activityType = activity['type'];
