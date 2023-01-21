@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.18c
+// @version      0.19
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.no fix
+// @update       1.新增许愿池活动
 
 (function () {
     //#region constant
@@ -42,6 +42,8 @@
     const URLPATH_LEGEND_STAGE_BASEINFO = '/activity/getLegendStageBaseInfo';//巨星挑战活动信息
     const URLPATH_LEGEND_STAGE_LIST = '/activity/getLegendStageList';//巨星挑战列表
     const URLPATH_LEGEND_STAGE_FIGHT = '/activity/legendStageFight';//进行巨星挑战
+    const URLPATH_WISHING_WELL = '/Activity/getWishingWell';//许愿池
+    const URLPATH_BUY_WISHING_WELL = '/Activity/buyWishingWell';//许愿池选择
     //#endregion
 
     //#region config
@@ -69,6 +71,8 @@
     var urlLegendStageBaseinfo = `${urlHost}${URLPATH_LEGEND_STAGE_BASEINFO}`;
     var urlLegendStageList = `${urlHost}${URLPATH_LEGEND_STAGE_LIST}`;
     var urlLegendStageFight = `${urlHost}${URLPATH_LEGEND_STAGE_FIGHT}`;
+    var urlWishingWell = `${urlHost}${URLPATH_WISHING_WELL}`;
+    var urlBuyWishingWell = `${urlHost}${URLPATH_BUY_WISHING_WELL}`;
     //#endregion
 
     //#region utils
@@ -389,6 +393,41 @@
         var res = getXhr(method, url, queryString, JSON.stringify(data));
         return res;
     }
+
+    var getWishingWell = function (activityId) {
+        var method = 'GET';
+        var url = urlWishingWell;
+        var queryString = {
+            TEAM_USER_TOKEN: token,
+            activity_id: activityId,
+            os: 'm',
+            version: '3.0.0'
+        };
+
+        var res = getXhr(method, url, queryString, null);
+        return res;
+    }
+ 
+    var getBuyWishingWell = function (activityId, index,day) {
+        var method = 'POST';
+        var url = urlBuyWishingWell;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityId,
+            index: index,
+            day:day,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var activityList = [];
     var taskGetActivityIndex = function () {
         for (value of Object.values(GROUP_ID)) {
@@ -500,6 +539,17 @@
             }
         }
     }
+
+    var taskWishingWell=function(){
+        var activity = activityList.find(item => item['title'].includes('许愿池'));
+        if (activity) {
+            var activityId = activity['id'];
+            var wishingWell = getWishingWell(activityId).result;
+            if(wishingWell['is_free']){
+                getBuyWishingWell(activityId,1,activity['day']);//随便选一个
+            }
+        }
+    }
     //#endregion
 
     //#region run
@@ -511,5 +561,6 @@
     taskSevenSign();
     taskRich();
     taskLegend();
+    taskWishingWell();
     //#endregion
 }())
