@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.19
+// @version      0.19b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.新增许愿池活动
+// @update       1.fix bug
 
 (function () {
     //#region constant
@@ -407,8 +407,8 @@
         var res = getXhr(method, url, queryString, null);
         return res;
     }
- 
-    var getBuyWishingWell = function (activityId, index,day) {
+
+    var getBuyWishingWell = function (activityId, index, day) {
         var method = 'POST';
         var url = urlBuyWishingWell;
         var queryString = {
@@ -420,7 +420,7 @@
         data = {
             activity_id: activityId,
             index: index,
-            day:day,
+            day: day,
             TEAM_USER_TOKEN: token
         }
 
@@ -540,13 +540,13 @@
         }
     }
 
-    var taskWishingWell=function(){
+    var taskWishingWell = function () {
         var activity = activityList.find(item => item['title'].includes('许愿池'));
         if (activity) {
             var activityId = activity['id'];
             var wishingWell = getWishingWell(activityId).result;
-            if(wishingWell['is_free']){
-                getBuyWishingWell(activityId,1,activity['day']);//随便选一个
+            if (wishingWell['is_free']) {
+                getBuyWishingWell(activityId, 1, wishingWell['day']);//随便选一个
             }
         }
     }
