@@ -1,11 +1,38 @@
 // @name         playerYoke
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 playerYoke
 // @author       Cath
-// @update       1.增加自动即办强化
+// @update       1.修正卡牌选择错误，增加选取最高战力卡牌功能
 
 (function () {
     //#region constant
+    const PLAYER_POS = {
+        '全部': 0,
+        '控卫': 1,
+        '分卫': 2,
+        '小前': 3,
+        '大前': 4,
+        '中锋': 5
+    };
+    const PLAYER_SORT = {
+        '品质': 1,
+        '战力': 2,
+        '两分': 3,
+        '三分': 4,
+        '助攻': 5,
+        '篮板': 6,
+        '抢断': 7,
+        '封盖': 8,
+        '卡量': 9,
+    }
+    const PLAYER_QUALITY = {
+        '黑卡': 251,
+        '巅峰': 211,
+        '金卡': 201,
+        '新秀': 161,
+        '银卡': 151,
+        '铜卡': 101//包含铁卡
+    }
     const URLPATH_YOKE_STAGE_LIST = '/Playeryoke/getYokeStageList';//羁绊强化挑战列表
     const URLPATH_PLAYER_CARD_LIST = '/PlayerFight/playerCardList';//卡牌列表
 
@@ -117,7 +144,7 @@
         return res;
     }
 
-    var getPlayerCardList = function (pos, offset, limit, sort, type, lineupID, quality) {
+    var getPlayerCardList = function (pos, offset, limit, sort, quality) {
         var method = 'POST';
         var url = urlPlayerCardList;
         var queryString = {
@@ -131,8 +158,8 @@
             offset: offset,
             limit: limit,
             sort: sort,
-            type: type,
-            lineup_id: lineupID,
+            type: 'battle',
+            // lineup_id: lineupID,
             quality: quality,
             team_id: 0,
             division: 0,
@@ -276,17 +303,21 @@
 
     var taskPlayerYoke = function () {
         const stagelist = getYokeStageList(2).result;//普通难度
-        const cardList = getPlayerCardList(0, 0, 100, 2).result;//获取全部位置的卡牌列表
+        const cardList = getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡']).result['list'];//获取全部位置的金卡卡牌列表
         // getPlayerCardList(1,0,30,2,'battle',stagelist['challenge_info']['lineup_id']);//获取卡牌列表
+        const lineupSet = new Set(lineupArr.flat());
+        cardList = cardList.filter(item => lineupSet.has(item.card_info.base_name));//只保留阵容球员信息
+        cardList.map((item, idx) => {//只保留能力值最高的卡牌
+            const starList = getStarList(item.id).result['list'];
+            for (star of starList) {
+                if (star.card_info.ability > cardList[idx].card_info.ability) {
+                    cardList[idx] = star;
+                }
+            }
+        })
 
         const lineupId = stagelist['challenge_info']['lineup_id'];
-        const lineupDict = cardList['list'].reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
-
-        /*
-        const starList = getStarList(cardID).result['list'];
-        starList.sort((i1,i2)=>{return -i1['card_info']['ability']+i2['card_info']['ability']});
-        const card=starList[0]['id'];
-        */
+        const lineupDict = cardList.reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
 
         setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
         getMoreYokeStageFight(100032, 1);//指定关卡，10
