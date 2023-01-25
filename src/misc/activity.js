@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.19b
+// @version      0.2
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.fix bug
+// @update       1.新增吉祥好物活动领取隐藏奖励
 
 (function () {
     //#region constant
@@ -44,6 +44,8 @@
     const URLPATH_LEGEND_STAGE_FIGHT = '/activity/legendStageFight';//进行巨星挑战
     const URLPATH_WISHING_WELL = '/Activity/getWishingWell';//许愿池
     const URLPATH_BUY_WISHING_WELL = '/Activity/buyWishingWell';//许愿池选择
+    const URLPATH_CHRISTMAS_GIFT = '/activity/getChristmasGift';//吉祥好物
+    const URLPATH_RECEIVE_CHRISTMAS_GIFT = '/activity/receiveChristmasGiftHideReward';//吉祥好物领取隐藏奖励
     //#endregion
 
     //#region config
@@ -73,6 +75,8 @@
     var urlLegendStageFight = `${urlHost}${URLPATH_LEGEND_STAGE_FIGHT}`;
     var urlWishingWell = `${urlHost}${URLPATH_WISHING_WELL}`;
     var urlBuyWishingWell = `${urlHost}${URLPATH_BUY_WISHING_WELL}`;
+    var urlChristmasGift = `${urlHost}${URLPATH_CHRISTMAS_GIFT}`;
+    var urlReceiveChristmasGift = `${urlHost}${URLPATH_RECEIVE_CHRISTMAS_GIFT}`;
     //#endregion
 
     //#region utils
@@ -118,12 +122,12 @@
     //#endregion
 
     //#region method
-    var getActivityIndex = function (groupId) {
+    var getActivityIndex = function (groupID) {
         var method = 'GET';
         var url = urlActivityIndex;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            group_id: groupId,
+            group_id: groupID,
             index: 0,
             os: 'm',
             page_count: 100,
@@ -164,12 +168,12 @@
         return res;
     }
 
-    var getActivityPokerList = function (activityId) {
+    var getActivityPokerList = function (activityID) {
         var method = 'GET';
         var url = urlActivityPokerList;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            activity_id: activityId,
+            activity_id: activityID,
             os: 'm',
             version: '3.0.0'
         };
@@ -178,7 +182,7 @@
         return res;
     }
 
-    var getActivityPoker = function (id, cardId, num) {
+    var getActivityPoker = function (id, cardID, num) {
         var method = 'POST';
         var url = urlActivityPoker;
         var queryString = {
@@ -189,7 +193,7 @@
 
         data = {
             id: id,
-            card_id: cardId,
+            card_id: cardID,
             num: num,
             TEAM_USER_TOKEN: token
         }
@@ -214,7 +218,7 @@
         return res;
     }
 
-    var getGuessCardShop = function (activityType, collectionId) {
+    var getGuessCardShop = function (activityType, collectionID) {
         var method = 'POST';
         var url = urlGuessCardShop;
         var queryString = {
@@ -226,7 +230,7 @@
         data = {
             activity_type: activityType,
             is_outside: 0,
-            collection_id: collectionId,
+            collection_id: collectionID,
             count: 1,
             free_count: 0,
             platform: 'ios',
@@ -251,7 +255,7 @@
         return res;
     }
 
-    var getStageAreaList = function (type, levelId, parentId) {
+    var getStageAreaList = function (type, levelID, parentID) {
         var method = 'POST';
         var url = urlStageAreaList;
         var queryString = {
@@ -262,8 +266,8 @@
 
         data = {
             type: type,
-            level_id: levelId,
-            parent_id: parentId,
+            level_id: levelID,
+            parent_id: parentID,
             TEAM_USER_TOKEN: token
         }
 
@@ -271,7 +275,7 @@
         return res;
     }
 
-    var getMoreFight = function (stageId, num = 5, type = 3) {
+    var getMoreFight = function (stageID, num = 5, type = 3) {
         var method = 'POST';
         var url = urlMoreFight;
         var queryString = {
@@ -281,7 +285,7 @@
         };
 
         data = {
-            stage_id: stageId,
+            stage_id: stageID,
             num: num,
             type: type,
             TEAM_USER_TOKEN: token
@@ -291,7 +295,7 @@
         return res;
     }
 
-    var getRichNPCEnter = function (activityId, npcId) {
+    var getRichNPCEnter = function (activityID, npcID) {
         var method = 'POST';
         var url = urlRichNPCEnter;
         var queryString = {
@@ -301,8 +305,8 @@
         };
 
         data = {
-            activity_id: activityId,
-            npc_id: npcId,
+            activity_id: activityID,
+            npc_id: npcID,
             TEAM_USER_TOKEN: token
         }
 
@@ -310,7 +314,7 @@
         return res;
     }
 
-    var getRichMove = function (activityId) {
+    var getRichMove = function (activityID) {
         var method = 'POST';
         var url = urlRichMove;
         var queryString = {
@@ -320,7 +324,7 @@
         };
 
         data = {
-            activity_id: activityId,
+            activity_id: activityID,
             TEAM_USER_TOKEN: token
         }
 
@@ -328,12 +332,12 @@
         return res;
     }
 
-    var getLegendStageIndex = function (activityId) {
+    var getLegendStageIndex = function (activityID) {
         var method = 'GET';
         var url = urlLegendStageIndex;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            activity_id: activityId,
+            activity_id: activityID,
             os: 'm',
             version: '3.0.0'
         };
@@ -342,13 +346,13 @@
         return res;
     }
 
-    var getLegendStageBaseinfo = function (activityId, legendStageId) {
+    var getLegendStageBaseinfo = function (activityID, legendStageID) {
         var method = 'GET';
         var url = urlLegendStageBaseinfo;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            activity_id: activityId,
-            legend_stage_id: legendStageId,
+            activity_id: activityID,
+            legend_stage_id: legendStageID,
             os: 'm',
             version: '3.0.0'
         };
@@ -357,15 +361,15 @@
         return res;
     }
 
-    var getLegendStageList = function (activityId, legendStageId) {
+    var getLegendStageList = function (activityID, legendStageID) {
         var method = 'GET';
         var url = urlLegendStageList;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            activity_id: activityId,
+            activity_id: activityID,
             current_stage_id: 0,
             direction: 0,
-            legend_stage_id: legendStageId,
+            legend_stage_id: legendStageID,
             os: 'm',
             page_num: 10,
             version: '3.0.0'
@@ -375,7 +379,7 @@
         return res;
     }
 
-    var getLegendStageFight = function (activityId, stageId) {
+    var getLegendStageFight = function (activityID, stageID) {
         var method = 'POST';
         var url = urlLegendStageFight;
         var queryString = {
@@ -385,8 +389,8 @@
         };
 
         data = {
-            activity_id: activityId,
-            stage_id: stageId,
+            activity_id: activityID,
+            stage_id: stageID,
             TEAM_USER_TOKEN: token
         }
 
@@ -394,12 +398,12 @@
         return res;
     }
 
-    var getWishingWell = function (activityId) {
+    var getWishingWell = function (activityID) {
         var method = 'GET';
         var url = urlWishingWell;
         var queryString = {
             TEAM_USER_TOKEN: token,
-            activity_id: activityId,
+            activity_id: activityID,
             os: 'm',
             version: '3.0.0'
         };
@@ -408,7 +412,7 @@
         return res;
     }
 
-    var getBuyWishingWell = function (activityId, index, day) {
+    var getBuyWishingWell = function (activityID, index, day) {
         var method = 'POST';
         var url = urlBuyWishingWell;
         var queryString = {
@@ -418,9 +422,41 @@
         };
 
         data = {
-            activity_id: activityId,
+            activity_id: activityID,
             index: index,
             day: day,
+            TEAM_USER_TOKEN: token
+        }
+
+        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getChristmasGift = function (activityID) {
+        var method = 'GET';
+        var url = urlChristmasGift;
+        var queryString = {
+            post_time: date.getTime(),
+            activity_id: activityID,
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        var res = getXhr(method, url, queryString, null);
+        return res;
+    }
+
+    var getReceiveChristmasGift = function (activityID) {
+        var method = 'POST';
+        var url = urlReceiveChristmasGift;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityID,
             TEAM_USER_TOKEN: token
         }
 
@@ -440,9 +476,9 @@
         var activity = activityList.filter(item => item['title'].includes('每日签到'));
         if (activity.length) {
             activity.map(item => {
-                var activityId = item['id'];
-                var rewardId = getActivityDetail(activityId).result['list'][0]['id'];
-                getActivityReward(rewardId);
+                var activityID = item['id'];
+                var rewardID = getActivityDetail(activityID).result['list'][0]['id'];
+                getActivityReward(rewardID);
             })
         }
     }
@@ -450,28 +486,28 @@
     var taskPoker = function () {//扑克牌
         var activity = activityList.find(item => item['title'].includes('扑克牌'));
         if (activity) {
-            var activityId = activity['id'];
-            var pokerList = getActivityPokerList(activityId).result;
-            // let cardId = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
-            let cardId = pokerList['card_list'][0]['id'];//就投第一个
+            var activityID = activity['id'];
+            var pokerList = getActivityPokerList(activityID).result;
+            // let cardID = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
+            let cardID = pokerList['card_list'][0]['id'];//就投第一个
             if (pokerList['remain_time'] === 0) {//有免费票
-                getActivityPoker(pokerList['id'], cardId, 1);
+                getActivityPoker(pokerList['id'], cardID, 1);
             }
             var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
             var num = pokerList['player_resource'][POKER_TICKET[round]];
             if (num) {//剩余票
-                getActivityPoker(pokerList['id'], cardId, num);
+                getActivityPoker(pokerList['id'], cardID, num);
             }
         }
     }
 
-    var taskCollection = function (collectionId = COLLECTION_ID['西南赛区']) {//集卡
+    var taskCollection = function (collectionID = COLLECTION_ID['西南赛区']) {//集卡
         var activity = activityList.find(item => item['title'].includes('集卡'));
         if (activity) {
             var activityType = activity['type'];
             var collcetionList = getCollectionList(activityType).result;
             if (collcetionList['next_interval_time'] === 0) {//存在免费抽卡
-                getGuessCardShop(activityType, collectionId);
+                getGuessCardShop(activityType, collectionID);
             }
         }
     }
@@ -479,17 +515,17 @@
     var taskSeason = function () {//季度卡活动
         var activity = activityList.find(item => item['title'].includes('季度卡'));
         if (activity) {
-            var activityId = activity['id'];
-            var subList = getActicitySubList(activityId).result['list'];
+            var activityID = activity['id'];
+            var subList = getActicitySubList(activityID).result['list'];
 
-            var detailId = subList.find(item => item['title'].includes('签到'))['id'];//签到
-            var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
-            getActivityReward(rewardId);
+            var detailID = subList.find(item => item['title'].includes('签到'))['id'];//签到
+            var rewardID = getActivityDetail(detailID).result['list'][0]['id'];
+            getActivityReward(rewardID);
 
-            var detailLinkId = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
-            var stageAreaList = getStageAreaList(detailLinkId[2], detailLinkId[0], detailLinkId[1]).result;
-            var stageId = stageAreaList['stage_list'][4]['id'];//最后一关id
-            getMoreFight(stageId, stageAreaList['challenge_times']);
+            var detailLinkID = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
+            var stageAreaList = getStageAreaList(detailLinkID[2], detailLinkID[0], detailLinkID[1]).result;
+            var stageID = stageAreaList['stage_list'][4]['id'];//最后一关id
+            getMoreFight(stageID, stageAreaList['challenge_times']);
         }
     }
 
@@ -497,9 +533,9 @@
         var activity = activityList.filter(item => item['title'].includes('7日签到'));
         if (activity.length) {
             activity.map(item => {
-                var activityId = item['id'];
-                var rewardId = getActivityDetail(activityId).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
-                if (rewardId) getActivityReward(rewardId['id']);
+                var activityID = item['id'];
+                var rewardID = getActivityDetail(activityID).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
+                if (rewardID) getActivityReward(rewardID['id']);
             })
         }
     }
@@ -507,35 +543,35 @@
     var taskRich = function () {//大富翁活动
         var activity = activityList.find(item => item['title'].includes('大富翁'));
         if (activity && activity['has_free']) {//存在活动且有免费次数
-            var activityId = activity['id'];
-            getRichNPCEnter(activityId, 1);//默认选择第一个角色
-            getRichMove(activityId);
+            var activityID = activity['id'];
+            getRichNPCEnter(activityID, 1);//默认选择第一个角色
+            getRichMove(activityID);
         }
     }
 
     var taskLegend = function () {//巨星挑战活动
         var activity = activityList.find(item => item['title'].includes('巨星挑战'));
         if (activity) {
-            var activityId = activity['id'];
-            var stageIndex = getLegendStageIndex(activityId).result;
+            var activityID = activity['id'];
+            var stageIndex = getLegendStageIndex(activityID).result;
 
             //签到
-            var subList = getActicitySubList(activityId).result;
-            var detailId = subList['list'].find(item => item['title'].includes('签到'))['id'];
-            if (subList['red_list'][detailId]) {//尚未签到则执行
-                var rewardId = getActivityDetail(detailId).result['list'][0]['id'];
-                getActivityReward(rewardId);
+            var subList = getActicitySubList(activityID).result;
+            var detailID = subList['list'].find(item => item['title'].includes('签到'))['id'];
+            if (subList['red_list'][detailID]) {//尚未签到则执行
+                var rewardID = getActivityDetail(detailID).result['list'][0]['id'];
+                getActivityReward(rewardID);
             }
 
             //挑战
-            var stageBaseinfo = getLegendStageBaseinfo(activityId, 2).result;//默认挑战字母
+            var stageBaseinfo = getLegendStageBaseinfo(activityID, 2).result;//默认挑战字母
             var num = parseInt(stageBaseinfo['player_stage_info']['challenge_times']);//剩余挑战次数
-            var stageList = getLegendStageList(activityId, 2).result['list'];//默认挑战字母
-            // var stageId = parseInt(stageList.find(item => item['is_current'])['id']);
-            var stageId = 2105;//挑战指定关卡
+            var stageList = getLegendStageList(activityID, 2).result['list'];//默认挑战字母
+            // var stageID = parseInt(stageList.find(item => item['is_current'])['id']);
+            var stageID = 2105;//挑战指定关卡
             for (let i = 0; i < num; i++) {
-                getLegendStageFight(activityId, stageId);
-                // stageId += 1;
+                getLegendStageFight(activityID, stageID);
+                // stageID += 1;
             }
         }
     }
@@ -543,10 +579,21 @@
     var taskWishingWell = function () {
         var activity = activityList.find(item => item['title'].includes('许愿池'));
         if (activity) {
-            var activityId = activity['id'];
-            var wishingWell = getWishingWell(activityId).result;
+            var activityID = activity['id'];
+            var wishingWell = getWishingWell(activityID).result;
             if (wishingWell['is_free']) {
-                getBuyWishingWell(activityId, 1, wishingWell['day']);//随便选一个
+                getBuyWishingWell(activityID, 1, wishingWell['day']);//随便选一个
+            }
+        }
+    }
+
+    var taskChristmasGift = function () {
+        var activity = activityList.find(item => item['title'].includes('吉祥好物'));
+        if (activity) {
+            var activityID = activity['id'];
+            var christamsGift = getChristmasGift(activityID).result;
+            if (christamsGift['can_receive'] === 1) {
+                getReceiveChristmasGift(activityID);
             }
         }
     }
@@ -562,5 +609,6 @@
     taskRich();
     taskLegend();
     taskWishingWell();
+    taskChristmasGift();
     //#endregion
 }())
