@@ -1,8 +1,8 @@
 // @name         playerYoke
-// @version      0.11
+// @version      0.11b
 // @description  NBA英雄 playerYoke
 // @author       Cath
-// @update       1.修正卡牌选择错误，增加选取最高战力卡牌功能
+// @update       1.fix bug
 
 (function () {
     //#region constant
@@ -303,7 +303,7 @@
 
     var taskPlayerYoke = function () {
         const stagelist = getYokeStageList(2).result;//普通难度
-        const cardList = getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡']).result['list'];//获取全部位置的金卡卡牌列表
+        let cardList = getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡']).result['list'];//获取全部位置的金卡卡牌列表
         // getPlayerCardList(1,0,30,2,'battle',stagelist['challenge_info']['lineup_id']);//获取卡牌列表
         const lineupSet = new Set(lineupArr.flat());
         cardList = cardList.filter(item => lineupSet.has(item.card_info.base_name));//只保留阵容球员信息
