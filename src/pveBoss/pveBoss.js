@@ -1,8 +1,8 @@
 // @name         pveBoss
-// @version      0.3
+// @version      0.31
 // @description  NBA英雄 pveBoss
 // @author       Cath
-// @update       1.使用自定义Date获取北京时间
+// @update       1.fix bug
 
 (function (angular, document) {
     //#region 使用自定义Date获取北京时间
@@ -59,9 +59,9 @@
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
-            console.info('%c%s - %s: %s', 'color:blue;font-weight:bold', _Date().toString(), value, comment);
+            console.info('%c%s - %s: %s', 'color:blue;font-weight:bold', new _Date().toString(), value, comment);
         } else {
-            console.info('%c%s : %s', 'color:blue;font-weight:bold', _Date().toString(), comment);
+            console.info('%c%s : %s', 'color:blue;font-weight:bold', new _Date().toString(), comment);
             console.info(value);
         }
     }
