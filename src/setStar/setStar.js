@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.22
+// @version      0.23
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.修改卡牌定位方式为球员名，修改offset限制
+// @update       1.加入操作延时，避免官方限制
 
 (async function () {
     //#region constant
@@ -97,6 +97,12 @@
             console.info('%c%s : %s', 'color:blue;font-weight:bold', Date().toString(), comment);
             console.info(value);
         }
+    }
+
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
     }
     //#endregion
 
@@ -196,6 +202,8 @@
             log(cardBase['id'],`金卡${i+1}cardBase`);
             cardMain = cardBase;
             log(`金卡第${i+1}次升星完成`);
+            
+            await sleep(1000);
         }
 
     }
@@ -214,6 +222,8 @@
             log(cardBase['id'],`银卡${i+1}cardBase`);
             cardMain = cardBase;
             log(`银卡第${i+1}次升星完成`);
+            
+            await sleep(1000);
         }
 
     }

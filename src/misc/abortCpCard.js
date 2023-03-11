@@ -1,8 +1,8 @@
 // @name         abortCpCard
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 abortCpCard
 // @author       Cath
-// @comment      1.新增公会贡献卡牌功能taskAbortCpCard
+// @comment      1.加入操作延时，避免官方限制
 
 (function () {
     //#region constant
@@ -74,6 +74,12 @@
             console.info(value);
         }
     }
+
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
+    }
     //#endregion
 
     //#region method
@@ -135,7 +141,7 @@
         return res;
     }
 
-    var taskAbortCpCard = function (num = -1, abortCount = 3, protectCardId = '3708') {//默认剩余1次手动贡献，每次贡献3张，保护马尔卡宁
+    var taskAbortCpCard = async function (num = -1, abortCount = 3, protectCardId = '3708') {//默认剩余1次手动贡献，每次贡献3张，保护马尔卡宁
         var abortNum = getSociatyAbortMaxNum().result;
         var maxAbortNum = parseInt(abortNum['max_abort_num']);
         var playerAbortNum = parseInt(abortNum['player_abort_num']);
@@ -160,6 +166,7 @@
                     cardIdList.push(abortCardList[i * abortCount + j]['id']);
                 }
                 setAbortCpCard(cardIdList);
+                await sleep(1000);
             }
         }
     }
