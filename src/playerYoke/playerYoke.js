@@ -1,8 +1,8 @@
 // @name         playerYoke
-// @version      0.11b
+// @version      0.12
 // @description  NBA英雄 playerYoke
 // @author       Cath
-// @update       1.fix bug
+// @update       1.加入操作延时，避免官方限制
 
 (function () {
     //#region constant
@@ -126,6 +126,12 @@
             console.info('%c%s : %s', 'color:blue;font-weight:bold', Date().toString(), comment);
             console.info(value);
         }
+    }
+
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
     }
     //#endregion
 
@@ -301,7 +307,7 @@
         }
     }
 
-    var taskPlayerYoke = function () {
+    var taskPlayerYoke = async function () {
         const stagelist = getYokeStageList(2).result;//普通难度
         let cardList = getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡']).result['list'];//获取全部位置的金卡卡牌列表
         // getPlayerCardList(1,0,30,2,'battle',stagelist['challenge_info']['lineup_id']);//获取卡牌列表
@@ -321,19 +327,28 @@
 
         setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
         getMoreYokeStageFight(100032, 1);//指定关卡，10
+        await sleep(1000);
         getMoreYokeStageFight(100032, 1);//9
+        await sleep(1000);
         getMoreYokeStageFight(100032, 1);//8
+        await sleep(1000);
         getMoreYokeStageFight(100032, 1);//7
+        await sleep(1000);
         getRecover(lineupDict['G-安特托孔波']);//恢复两人体力
         getRecover(lineupDict['尼科拉-约基奇']);//恢复两人体力
         setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
         getMoreYokeStageFight(100032, 1);//6
+        await sleep(1000);
         getMoreYokeStageFight(100032, 1);//5
+        await sleep(1000);
         setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
         getMoreYokeStageFight(100030, 1);//4
+        await sleep(1000);
         setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
         getMoreYokeStageFight(100030, 1);//3
+        await sleep(1000);
         getMoreYokeStageFight(100030, 1);//2
+        await sleep(1000);
         setLinupAndYoke(lineupId, lineupDict, lineupArr[4], yokeArr[4]);//第五阵容
         getMoreYokeStageFight(100029, 1);//1
     }
