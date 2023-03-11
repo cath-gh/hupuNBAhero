@@ -1,8 +1,8 @@
 // @name         playerBattle
-// @version      0.1
+// @version      0.11
 // @description  NBA英雄 playerBattle
 // @author       Cath
-// @update       1.增加自动血战
+// @update       1.加入操作延时，避免官方限制
 
 (function () {
     //#region constant
@@ -109,6 +109,12 @@
             console.info('%c%s : %s', 'color:blue;font-weight:bold', Date().toString(), comment);
             console.info(value);
         }
+    }
+
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
     }
     //#endregion
 
@@ -348,7 +354,7 @@
         return res;
     }
 
-    var tastBattle = function () {
+    var tastBattle = async function () {
         const lastSelect = getBattleLastSelect().result['list'];
         const cardsIds = lastSelect.map(item => item['id']);
         getBattleSaveSelect(cardsIds);//一键导入
@@ -359,18 +365,27 @@
 
         setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
         getBattleChallenge(1);
+        await sleep(1000);
         getBattleChallenge(2);
+        await sleep(1000);
         getBattleChallenge(3);
+        await sleep(1000);
 
         setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
         getBattleChallenge(4);
+        await sleep(1000);
         setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
         getBattleChallenge(5);
+        await sleep(1000);
         getBattleChallenge(6);
+        await sleep(1000);
         getBattleChallenge(7);
+        await sleep(1000);
         setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
         getBattleChallenge(8);
+        await sleep(1000);
         getBattleChallenge(9);
+        await sleep(1000);
         getBattleChallenge(10);
 
         const rewardList = getBattleBarrier().result['star_reward_list'];
