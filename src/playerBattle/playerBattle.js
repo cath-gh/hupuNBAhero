@@ -1,8 +1,8 @@
 // @name         playerBattle
-// @version      0.11
+// @version      0.11b
 // @description  NBA英雄 playerBattle
 // @author       Cath
-// @update       1.加入操作延时，避免官方限制
+// @update       1.现在问题比较难处理，考虑在请求环节直接加入延时
 
 (function () {
     //#region constant
@@ -307,14 +307,27 @@
         return res;
     }
 
-    var setLinupAndYoke = function (lineupId, lineupDict, lineupArr, yokeArr) {
-        lineupArr.map((item, idx) => {//第一阵容上阵
-            getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
-        })
-        if (yokeArr.length) {//第一阵容羁绊
+    var setLinupAndYoke = async function (lineupId, lineupDict, lineupArr, yokeArr) {
+        // lineupArr.map((item, idx) => {//阵容上阵
+        //     getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
+        // })
+        //暂时方式
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[0]], 1);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[1]], 2);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[2]], 3);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[3]], 4);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[4]], 5);
+        await sleep(800);
+
+        if (yokeArr.length) {//阵容羁绊
             let yokeList = getLineupYokeList(lineupId).result[2];
             let yokeSetList = yokeArr.map(item => yokeList.find(yoke => yoke['title'] === item)['yoke_id']);
             getSetPlayerLineupYoke(lineupId, yokeSetList);
+            await sleep(800);
         }
     }
 
