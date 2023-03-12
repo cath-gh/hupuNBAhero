@@ -1,5 +1,5 @@
 // @name         setStar
-// @version      0.23b
+// @version      0.23c
 // @description  NBA英雄 setStar
 // @author       Cath
 // @update       1.fetch延时测试版
@@ -78,7 +78,7 @@
         return res;
     }
 
-    var getFetch = async function (method, url, query, formData, delay) {
+    var getFetch = async function (method, url, query, formData, delay=850) {//默认延时850ms
         formData = formData || null;
         let urlString = concatUrlQuery(url, query);
         var res = await fetch(urlString, {
@@ -129,7 +129,7 @@
         data.append('TEAM_USER_TOKEN', token);
 
         // var res = getXhr(method, url, queryString, data);
-        var res = await getFetch(method, url, queryString, data, 850);
+        var res = await getFetch(method, url, queryString, data);
         return res;
     }
 
@@ -149,7 +149,7 @@
         data.append('TEAM_USER_TOKEN', token);
 
         // var res = getXhr(method, url, queryString, data);
-        var res = await getFetch(method, url, queryString, data, 850);
+        var res = await getFetch(method, url, queryString, data);
         return res;
     }
 
@@ -189,7 +189,7 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = await getFetch(method, url, queryString, JSON.stringify(data), 850);
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
@@ -207,8 +207,6 @@
             log(cardBase['id'], `金卡${i + 1}cardBase`);
             cardMain = cardBase;
             log(`金卡第${i + 1}次升星完成`);
-
-            // await sleep(1000);
         }
 
     }
@@ -227,8 +225,6 @@
             log(cardBase['id'], `银卡${i + 1}cardBase`);
             cardMain = cardBase;
             log(`银卡第${i + 1}次升星完成`);
-
-            // await sleep(1000);
         }
 
     }
