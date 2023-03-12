@@ -1,10 +1,10 @@
 // @name         playerBattle
-// @version      0.11b
+// @version      0.11b1
 // @description  NBA英雄 playerBattle
 // @author       Cath
-// @update       1.现在问题比较难处理，考虑在请求环节直接加入延时
+// @update       1.很难处理的版本
 
-(function () {
+// (function () {
     //#region constant
     const URLPATH_BATTLE_LAST_SELECT = '/Battle/lastSelect';//一键导入上一次选人
     const URLPATH_BATTLE_SAVE_SELECT = '/battle/saveSelect';//保存选人
@@ -99,6 +99,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         if (comment !== 0) {
             comment = comment || '';
@@ -119,7 +135,7 @@
     //#endregion
 
     //#region method
-    var getBattleLastSelect = function () {
+    var getBattleLastSelect = async function () {
         var method = 'POST';
         var url = urlBattleLastSelect;
         var queryString = {
@@ -132,11 +148,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getBattleSaveSelect = function (cardsIds) {
+    var getBattleSaveSelect = async function (cardsIds) {
         var method = 'POST';
         var url = urlBattleSaveSelect;
         var queryString = {
@@ -150,11 +167,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getBattleInfo = function () {
+    var getBattleInfo = async function () {
         var method = 'POST';
         var url = urlBattleInfo;
         var queryString = {
@@ -167,11 +185,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getBattleBarrier = function () {
+    var getBattleBarrier = async function () {
         var method = 'POST';
         var url = urlBattleBarrier;
         var queryString = {
@@ -184,11 +203,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getBattleLineup = function () {
+    var getBattleLineup = async function () {
         var method = 'POST';
         var url = urlBattleLineup;
         var queryString = {
@@ -201,7 +221,8 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
@@ -210,7 +231,7 @@
      * @param {int} pos 球员位置1 - 5
      * @returns 
      */
-    var getBattleDetail = function (pos = 1) {
+    var getBattleDetail = async function (pos = 1) {
         var method = 'POST';
         var url = urlBattleDetail;
         var queryString = {
@@ -224,11 +245,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getPlayerFightLineup = function (lineupId, cardId, pos, lineupType = 4) {
+    var getPlayerFightLineup = async function (lineupId, cardId, pos, lineupType = 4) {
         var method = 'POST';
         var url = urlPlayerFightLineup;
         var queryString = {
@@ -245,11 +267,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getLineupYokeList = function (lineupId) {
+    var getLineupYokeList = async function (lineupId) {
         var method = 'POST';
         var url = urlLineupYokeList;
         var queryString = {
@@ -264,11 +287,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getSetPlayerLineupYoke = function (lineupId, yokeIds) {
+    var getSetPlayerLineupYoke = async function (lineupId, yokeIds) {
         var method = 'POST';
         var url = urlSetPlayerLineupYoke;
         var queryString = {
@@ -283,11 +307,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getAllYokeList = function (type = 0, offset = 0, limit = 200) {
+    var getAllYokeList = async function (type = 0, offset = 0, limit = 200) {
         var method = 'POST';
         var url = urlAllYokeList;
         var queryString = {
@@ -303,35 +328,28 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
     var setLinupAndYoke = async function (lineupId, lineupDict, lineupArr, yokeArr) {
-        // lineupArr.map((item, idx) => {//阵容上阵
+        await Promise.all(lineupArr.map((item, idx) => {//阵容上阵
+            return getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
+        }))
+
+        // await lineupArr.map((item, idx) => {//阵容上阵
         //     getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
         // })
-        //暂时方式
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[0]], 1);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[1]], 2);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[2]], 3);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[3]], 4);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[4]], 5);
-        await sleep(800);
 
         if (yokeArr.length) {//阵容羁绊
-            let yokeList = getLineupYokeList(lineupId).result[2];
+            let yokeList = await getLineupYokeList(lineupId).result[2];
             let yokeSetList = yokeArr.map(item => yokeList.find(yoke => yoke['title'] === item)['yoke_id']);
-            getSetPlayerLineupYoke(lineupId, yokeSetList);
-            await sleep(800);
+            await getSetPlayerLineupYoke(lineupId, yokeSetList);
         }
     }
 
-    var getBattleChallenge = function (barrierNo) {
+    var getBattleChallenge = async function (barrierNo) {
         var method = 'POST';
         var url = urlBattleChallenge;
         var queryString = {
@@ -345,11 +363,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getGainStarReward = function (pointsRewardId) {
+    var getGainStarReward = async function (pointsRewardId) {
         var method = 'POST';
         var url = urlGainStarReward;
         var queryString = {
@@ -363,52 +382,43 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
     var tastBattle = async function () {
-        const lastSelect = getBattleLastSelect().result['list'];
+        const lastSelect = await getBattleLastSelect().result['list'];
         const cardsIds = lastSelect.map(item => item['id']);
-        getBattleSaveSelect(cardsIds);//一键导入
+        await getBattleSaveSelect(cardsIds);//一键导入
 
-        const lineupId = getBattleLineup().result;//阵容ID
+        const lineupId = await getBattleLineup().result;//阵容ID
         const lineupDict = lastSelect.reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
 
 
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
-        getBattleChallenge(1);
-        await sleep(1000);
-        getBattleChallenge(2);
-        await sleep(1000);
-        getBattleChallenge(3);
-        await sleep(1000);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
+        await getBattleChallenge(1);
+        await getBattleChallenge(2);
+        await getBattleChallenge(3);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
+        await getBattleChallenge(4);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
+        await getBattleChallenge(5);
+        await getBattleChallenge(6);
+        await getBattleChallenge(7);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
+        await getBattleChallenge(8);
+        await getBattleChallenge(9);
+        await getBattleChallenge(10);
 
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
-        getBattleChallenge(4);
-        await sleep(1000);
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
-        getBattleChallenge(5);
-        await sleep(1000);
-        getBattleChallenge(6);
-        await sleep(1000);
-        getBattleChallenge(7);
-        await sleep(1000);
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
-        getBattleChallenge(8);
-        await sleep(1000);
-        getBattleChallenge(9);
-        await sleep(1000);
-        getBattleChallenge(10);
-
-        const rewardList = getBattleBarrier().result['star_reward_list'];
+        const rewardList = await getBattleBarrier().result['star_reward_list'];
         const rewardIdList = rewardList.filter(item => item['reward_status'] === 1).map(item => item['points_reward_id']);
-        rewardIdList.map(item => getGainStarReward(item));
+        await rewardIdList.map(item => getGainStarReward(item));
 
     }
     //#endregion
 
     //#region run
-    tastBattle();
+    // tastBattle();
     //#endregion
-}())
+// }())
