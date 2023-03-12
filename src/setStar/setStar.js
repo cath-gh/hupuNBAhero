@@ -1,8 +1,8 @@
 // @name         setStar
-// @version      0.23
+// @version      0.23b
 // @description  NBA英雄 setStar
 // @author       Cath
-// @update       1.加入操作延时，避免官方限制
+// @update       1.fetch延时测试版
 
 (async function () {
     //#region constant
@@ -78,14 +78,19 @@
         return res;
     }
 
-    var getFetch = async function (method, url, query, formData) {
+    var getFetch = async function (method, url, query, formData, delay) {
         formData = formData || null;
         let urlString = concatUrlQuery(url, query);
         var res = await fetch(urlString, {
             method: method,
             body: formData
         })
-    
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
         return res.json();
     }
 
@@ -124,11 +129,11 @@
         data.append('TEAM_USER_TOKEN', token);
 
         // var res = getXhr(method, url, queryString, data);
-        var res = await getFetch(method, url, queryString, data);
+        var res = await getFetch(method, url, queryString, data, 850);
         return res;
     }
 
-    var getPlayerCardStarList =async function (cardId, isPreview = 1, isMemberId = 0, memberId = 0) {
+    var getPlayerCardStarList = async function (cardId, isPreview = 1, isMemberId = 0, memberId = 0) {
         var method = 'POST';
         var url = urlPlayerCardStarList;
         var queryString = {
@@ -144,7 +149,7 @@
         data.append('TEAM_USER_TOKEN', token);
 
         // var res = getXhr(method, url, queryString, data);
-        var res = await getFetch(method, url, queryString, data);
+        var res = await getFetch(method, url, queryString, data, 850);
         return res;
     }
 
@@ -184,46 +189,46 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res =await  getFetch(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data), 850);
         return res;
     }
 
     var taskGoldenCardSetStar = async function () {
         var cardList = await getPlayerCardList(PLAYER_POS['中锋']);
-        cardList=cardList.result;
+        cardList = cardList.result;
         var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '巴姆-阿德巴约' });//阿德巴约
 
         for (let i = 0; i < 5; i++) {
-            log(`金卡第${i+1}次进入`);
+            log(`金卡第${i + 1}次进入`);
             var cardStarList = await getPlayerCardStarList(cardMain['id']);
             var cardBase = cardStarList.result.card_list[0];
             var setStar = await getSetStar(cardBase['id'], [cardMain['id']]);
-            log(cardMain['id'],`金卡${i+1}cardMain`);
-            log(cardBase['id'],`金卡${i+1}cardBase`);
+            log(cardMain['id'], `金卡${i + 1}cardMain`);
+            log(cardBase['id'], `金卡${i + 1}cardBase`);
             cardMain = cardBase;
-            log(`金卡第${i+1}次升星完成`);
-            
-            await sleep(1000);
+            log(`金卡第${i + 1}次升星完成`);
+
+            // await sleep(1000);
         }
 
     }
 
     var taskSilverCardSetStar = async function () {
         var cardList = await getPlayerCardList(PLAYER_POS['大前']);
-        cardList=cardList.result;
+        cardList = cardList.result;
         var cardMain = cardList['list'].find((item, idx) => { return item['card_info']['base_name'] === '劳里-马尔卡宁' });//马尔卡宁
 
         for (let i = 0; i < 10; i++) {
-            log(`银卡第${i+1}次进入`);
+            log(`银卡第${i + 1}次进入`);
             var cardStarList = await getPlayerCardStarList(cardMain['id']);
             var cardBase = cardStarList.result.card_list[0];
             var setStar = await getSetStar(cardBase['id'], [cardMain['id']]);
-            log(cardMain['id'],`银卡${i+1}cardMain`);
-            log(cardBase['id'],`银卡${i+1}cardBase`);
+            log(cardMain['id'], `银卡${i + 1}cardMain`);
+            log(cardBase['id'], `银卡${i + 1}cardBase`);
             cardMain = cardBase;
-            log(`银卡第${i+1}次升星完成`);
-            
-            await sleep(1000);
+            log(`银卡第${i + 1}次升星完成`);
+
+            // await sleep(1000);
         }
 
     }
