@@ -1,8 +1,8 @@
 // @name         playerYoke
-// @version      0.13
+// @version      0.13b
 // @description  NBA英雄 playerYoke
 // @author       Cath
-// @update       1.修改阵容
+// @update       1.问题版本待修正
 
 (function () {
     //#region constant
@@ -191,7 +191,7 @@
         return res;
     }
 
-    var getStarList = function (cardID) {
+    var getStarList = async function (cardID) {
         var method = 'POST';
         var url = urlStarList;
         var queryString = {
@@ -309,10 +309,23 @@
         return res;
     }
 
-    var setLinupAndYoke = function (lineupId, lineupDict, lineupArr, yokeArr) {
-        lineupArr.map((item, idx) => {//第一阵容上阵
-            getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
-        })
+    var setLinupAndYoke = async function (lineupId, lineupDict, lineupArr, yokeArr) {
+        // lineupArr.map((item, idx) => {//第一阵容上阵
+        //     getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
+        // })
+
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[0]], 1);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[1]], 2);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[2]], 3);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[3]], 4);
+        await sleep(800);
+        getPlayerFightLineup(lineupId, lineupDict[lineupArr[4]], 5);
+        await sleep(800);
+
+
         if (yokeArr.length) {//第一阵容羁绊
             let yokeList = getLineupYokeList(lineupId).result[2];
             let yokeSetList = yokeArr.map(item => yokeList.find(yoke => yoke['title'] === item)['yoke_id']);
@@ -326,14 +339,26 @@
         // getPlayerCardList(1,0,30,2,'battle',stagelist['challenge_info']['lineup_id']);//获取卡牌列表
         const lineupSet = new Set(lineupArr.flat());
         cardList = cardList.filter(item => lineupSet.has(item.card_info.base_name));//只保留阵容球员信息
-        cardList.map((item, idx) => {//只保留能力值最高的卡牌
-            const starList = getStarList(item.id).result['list'];
+
+        // cardList.map((item, idx) => {//只保留能力值最高的卡牌
+        //     const starList = getStarList(item.id).result['list'];
+        //     for (star of starList) {
+        //         if (star.card_info.ability > cardList[idx].card_info.ability) {
+        //             cardList[idx] = star;
+        //         }
+        //     }
+        // })
+
+        for (let i = 0; i < cardList.length; i++) {
+            const starList = getStarList(cardList[0].id).result['list'];
             for (star of starList) {
-                if (star.card_info.ability > cardList[idx].card_info.ability) {
-                    cardList[idx] = star;
+                if (star.card_info.ability > cardList[i].card_info.ability) {
+                    cardList[i] = star;
                 }
             }
-        })
+            await sleep(800);
+        }
+
 
         const lineupId = stagelist['challenge_info']['lineup_id'];
         const lineupDict = cardList.reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
