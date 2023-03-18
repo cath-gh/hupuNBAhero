@@ -1,8 +1,8 @@
 // @name         playerBattle
 // @version      0.12
-// @description  NBA英雄 playerBattle
+// @description  NBA英雄 血战
 // @author       Cath
-// @update       1.解决了各种异步函数需要同步等待的问题
+// @update       1.修改描述
 
 (function () {
     //#region constant

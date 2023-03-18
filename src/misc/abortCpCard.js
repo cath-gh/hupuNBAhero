@@ -1,8 +1,8 @@
 // @name         abortCpCard
 // @version      0.12
-// @description  NBA英雄 abortCpCard
+// @description  NBA英雄 公会捐献卡牌
 // @author       Cath
-// @comment      1.使用Fetch延时代替sleep
+// @comment      1.修改描述
 
 (function () {
     //#region constant
