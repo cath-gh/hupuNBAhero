@@ -1,8 +1,8 @@
 // @name         abortCpCard
-// @version      0.11
+// @version      0.12
 // @description  NBA英雄 abortCpCard
 // @author       Cath
-// @comment      1.加入操作延时，避免官方限制
+// @comment      1.使用Fetch延时代替sleep
 
 (function () {
     //#region constant
@@ -65,6 +65,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -83,7 +99,7 @@
     //#endregion
 
     //#region method
-    var getSociatyAbortMaxNum = function () {
+    var getSociatyAbortMaxNum = async function () {
         var method = 'POST';
         var url = urlGetSociatyAbortMaxNum;
         var queryString = {
@@ -96,11 +112,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getAbortCpCardList = function (offset = 0, limit = 100, sort = 1, desc = 1, quality = CARD_QUAILITY['银卡']) {
+    var getAbortCpCardList = async function (offset = 0, limit = 100, sort = 1, desc = 1, quality = CARD_QUAILITY['银卡']) {
         var method = 'POST';
         var url = urlGetAbortCpCardList;
         var queryString = {
@@ -118,11 +135,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var setAbortCpCard = function (cardId, costCredit = 0) {
+    var setAbortCpCard = async function (cardId, costCredit = 0) {
         var method = 'POST';
         var url = urlSetAbortCpCard;
         var queryString = {
@@ -137,12 +155,13 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
     var taskAbortCpCard = async function (num = -1, abortCount = 3, protectCardId = '3708') {//默认剩余1次手动贡献，每次贡献3张，保护马尔卡宁
-        var abortNum = getSociatyAbortMaxNum().result;
+        var abortNum = (await getSociatyAbortMaxNum()).result;
         var maxAbortNum = parseInt(abortNum['max_abort_num']);
         var playerAbortNum = parseInt(abortNum['player_abort_num']);
 
@@ -156,7 +175,7 @@
 
         if (num > playerAbortNum) {//num大于已贡献次数则进行贡献
             num = num - playerAbortNum;//实际待贡献次数
-            let cardList = getAbortCpCardList().result.list
+            let cardList = (await getAbortCpCardList()).result.list
             let abortCardList = cardList.filter((item) => { return item['card_id'] !== protectCardId && item['star'] === '0' });
             let count = parseInt(abortCardList.length / abortCount);
             num = num < count ? num : count;
@@ -165,9 +184,10 @@
                 for (let j = 0; j < abortCount; j++) {
                     cardIdList.push(abortCardList[i * abortCount + j]['id']);
                 }
-                setAbortCpCard(cardIdList);
-                await sleep(1000);
+                await setAbortCpCard(cardIdList);
+                log(`捐献卡牌第${i + 1}组`);
             }
+            log(`工会捐献任务Done~`);
         }
     }
     //#endregion
