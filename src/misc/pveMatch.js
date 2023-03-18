@@ -1,10 +1,10 @@
 // @name         pveMatch
-// @version      0.12
-// @description  NBA英雄 pveMatch
+// @version      0.13
+// @description  NBA英雄 冠军经理积分赛
 // @author       Cath
-// @update       1.修正了积分奖励领取
+// @update       1.启用Fetch+延时版本
 
-(function () {
+(async function () {
     //#region constant
     const URLPATH_PVE_MATCH = '/PlayerFight/pveMatch';//冠军经理模式刷新积分赛对手
     const URLPATH_PVE_INDEX = '/PlayerFight/pveIndex';//冠军经理模式查询积分赛对手战力
@@ -71,6 +71,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -83,7 +99,7 @@
     //#endregion
 
     //#region method
-    var getPveMatch = function (is_fresh = 1, showType = 3) {
+    var getPveMatch = async function (is_fresh = 1, showType = 3) {
         var method = 'GET';
         var url = urlPveMatch;
         var queryString = {
@@ -94,11 +110,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString);
+        // var res = getXhr(method, url, queryString);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getPveIndex = function (showType = 3) {
+    var getPveIndex = async function (showType = 3) {
         var method = 'POST';
         var url = urlPveIndex;
         var queryString = {
@@ -112,11 +129,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getConfirmPveMatch = function (showType = 3, userCode) {
+    var getConfirmPveMatch = async function (showType = 3, userCode) {
         var method = 'GET';
         var url = urlConfirmPveMatch;
         var queryString = {
@@ -127,32 +145,34 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString);
+        // var res = getXhr(method, url, queryString);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var pveMatch = function () {
-        var pveIndex = getPveIndex().result;
+    var pveMatch = async function () {
+        var pveIndex = (await getPveIndex()).result;
         if (!pveIndex['match_player_list']) {
-            getPveMatch();
-            pveIndex = getPveIndex().result;
+            await getPveMatch();
+            pveIndex = (await getPveIndex()).result;
         }
         var pveList = pveIndex['match_player_list'];
         pveList.forEach((item) => { log('战力', item['lineup_ability']) })
         var pveSelect = pveList.reduce((item1, item2) => { return item1['lineup_ability'] <= item2['lineup_ability'] ? item1 : item2 }, { 'lineup_ability': Number.MAX_VALUE });
         log('选中战力', pveSelect['lineup_ability'])
         var userCode = pveSelect['player_info']['user_code'];
-        getConfirmPveMatch(3, userCode);
+        await getConfirmPveMatch(3, userCode);
     }
 
-    var taskPveMatch = function () {
-        var pveIndex = getPveIndex().result;
+    var taskPveMatch = async function () {
+        var pveIndex = (await getPveIndex()).result;
         for (let i = pveIndex['day_all']; i < pveIndex['day_max_num']; i++) {
-            pveMatch();
+            await pveMatch();
         }
+        log(`冠军经理积分赛挑战完成~`);
     }
 
-    var getPveDailyReward = function (showType = 3) {
+    var getPveDailyReward = async function (showType = 3) {
         var method = 'POST';
         var url = urlPveDailyReward;
         var queryString = {
@@ -166,11 +186,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getReceivePveJoinReward = function (showType = 3) {
+    var getReceivePveJoinReward = async function (showType = 3) {
         var method = 'POST';
         var url = urlReceivePveJoinReward;
         var queryString = {
@@ -184,11 +205,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getReceivePveWinReward = function (showType = 3) {
+    var getReceivePveWinReward = async function (showType = 3) {
         var method = 'POST';
         var url = urlReceivePveWinReward;
         var queryString = {
@@ -202,11 +224,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getReceivePveStreakWinReward = function (num, showType = 3) {
+    var getReceivePveStreakWinReward = async function (num, showType = 3) {
         var method = 'POST';
         var url = urlReceivePveStreakWinReward;
         var queryString = {
@@ -221,25 +244,27 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskPveDailyReward = function () {
-        var pveDailyReward = getPveDailyReward().result;
+    var taskPveDailyReward = async function () {
+        var pveDailyReward = (await getPveDailyReward()).result;
         if (pveDailyReward['list']['join_reward']['left_reward_time'] > 0) {
-            getReceivePveJoinReward();
+            await getReceivePveJoinReward();
         }
         if (pveDailyReward['list']['win_reward']['left_reward_time'] > 0) {
-            getReceivePveWinReward();
+            await getReceivePveWinReward();
         }
         var streakWinList = pveDailyReward['list']['streak_win_reward'].filter((item) => { return item['left_reward_time'] > 0 });
-        if (streakWinList.length) {
-            streakWinList.map((item) => { getReceivePveStreakWinReward(item['score']) });
+        for (item of streakWinList) {
+            await getReceivePveStreakWinReward(item['score']);
         }
+        log(`冠军经理积分赛每日奖励完成~`);
     }
 
-    var getPointsList = function (showType = 3) {
+    var getPointsList = async function (showType = 3) {
         var method = 'POST';
         var url = urlPointsList;
         var queryString = {
@@ -253,11 +278,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getPointsAward = function (id, showType = 3) {
+    var getPointsAward = async function (id, showType = 3) {
         var method = 'POST';
         var url = urlPointsAward;
         var queryString = {
@@ -272,20 +298,24 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskPointsAward = function () {
-        var pointsAward = getPointsList().result;
+    var taskPointsAward = async function () {
+        var pointsAward = (await getPointsList()).result;
         var awardList = pointsAward['list'].filter((item) => { return item['status'] === 1 });
-        awardList.map((item) => { getPointsAward(item['id']) });
+        for (item of awardList) {
+            await getPointsAward(item['id']);
+            log(`冠军经理积分赛累计奖励完成~`);
+        }
     }
     //#endregion
 
     //#region run
-    taskPveMatch();
-    taskPveDailyReward();
-    taskPointsAward();
+    await taskPveMatch();
+    await taskPveDailyReward();
+    await taskPointsAward();
     //#endregion
 }())
