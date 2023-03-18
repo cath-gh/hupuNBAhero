@@ -1,8 +1,8 @@
 // @name         taskDaily
 // @version      0.17
-// @description  NBA英雄 taskDaily
+// @description  NBA英雄 每日任务
 // @author       Cath
-// @update       1.启用Fetch+延时版本
+// @update       1.更改描述
 
 (async function () {
     //#region constant
