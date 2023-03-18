@@ -1,10 +1,10 @@
 // @name         taskDaily
-// @version      0.16
+// @version      0.17
 // @description  NBA英雄 taskDaily
 // @author       Cath
-// @update       1.修正累计签到错误
+// @update       1.启用Fetch+延时版本
 
-(function () {
+(async function () {
     //#region constant
     const URLPATH_DAILY_REWARD = '/Player/privilegeDailyReward';//vip每日奖励
 
@@ -83,6 +83,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -95,7 +111,7 @@
     //#endregion
 
     //#region method
-    var getDailyReward = function () {
+    var getDailyReward = async function () {
         var method = 'POST';
         var url = urlDailyReward;
         var queryString = {
@@ -108,11 +124,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getVipGetBossChallenge = function () {
+    var getVipGetBossChallenge = async function () {
         var method = 'POST';
         var url = urlVipGetBossChallenge;
         var queryString = {
@@ -125,11 +142,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getMonthSignList = function () {
+    var getMonthSignList = async function () {
         var method = 'POST';
         var url = urlGetMonthSignList;
         var queryString = {
@@ -142,11 +160,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var setPlayerMonthSign = function (id) {
+    var setPlayerMonthSign = async function (id) {
         var method = 'POST';
         var url = urlSetPlayerMonthSign;
         var queryString = {
@@ -160,11 +179,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var setPlayerMonthAllSign = function (id) {
+    var setPlayerMonthAllSign = async function (id) {
         var method = 'POST';
         var url = urlSetPlayerMonthAllSign;
         var queryString = {
@@ -178,25 +198,27 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskMonthSign = function () {
+    var taskMonthSign = async function () {
         //每日签到
-        var signList = getMonthSignList();
+        var signList = await getMonthSignList();
         var sign = signList.result.day_list.find((item) => { return item['is_sign'] === 0 });
         if (sign) {
-            setPlayerMonthSign(sign['id']);
+            await setPlayerMonthSign(sign['id']);
 
             var signSum = signList.result.sum_day_list.find((item) => { return item['day'] === sign['day'] });
             if (signSum) {
-                setPlayerMonthAllSign(signSum['id']);
+                await setPlayerMonthAllSign(signSum['id']);
             }
         }
+        log(`每日签到任务Done~`);
     }
 
-    var getPaymentFlag = function () {
+    var getPaymentFlag = async function () {
         var method = 'POST';
         var url = urlGetPaymentFlag;
         var queryString = {
@@ -209,11 +231,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getGift = function (id, type = 0, loop_type = 1) {
+    var getGift = async function (id, type = 0, loop_type = 1) {
         var method = 'POST';
         var url = urlGift;
         var queryString = {
@@ -229,11 +252,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getBuyGift = function (activityId, id) {
+    var getBuyGift = async function (activityId, id) {
         var method = 'POST';
         var url = urlBuyGift;
         var queryString = {
@@ -248,18 +272,20 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskBuyFreeGift = function () {
-        var paymentFlag = getPaymentFlag();
-        var gift = getGift(paymentFlag.result['gift_activity_id']);
+    var taskBuyFreeGift = async function () {
+        var paymentFlag = await getPaymentFlag();
+        var gift = await getGift(paymentFlag.result['gift_activity_id']);
         var freeGift = gift.result.list.find((item) => { return item['title'] === '每日免费' })
-        getBuyGift(gift.result['id'], freeGift['id']);
+        await getBuyGift(gift.result['id'], freeGift['id']);
+        log(`免费礼物Done~`);
     }
 
-    var getMySociaty = function () {
+    var getMySociaty = async function () {
         var method = 'POST';
         var url = urlGetMySociaty;
         var queryString = {
@@ -272,11 +298,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getReceiveDailyReward = function (sociatyId) {
+    var getReceiveDailyReward = async function (sociatyId) {
         var method = 'POST';
         var url = urlReceiveDailyReward;
         var queryString = {
@@ -290,17 +317,19 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskSociatySign = function () {
-        var sociaty = getMySociaty();
-        getReceiveDailyReward(sociaty.result['sociaty_id']);
+    var taskSociatySign = async function () {
+        var sociaty = await getMySociaty();
+        await getReceiveDailyReward(sociaty.result['sociaty_id']);
+        log(`公会签到Done~`);
     }
 
 
-    var getSociatyVisitDetail = function (visitId) {
+    var getSociatyVisitDetail = async function (visitId) {
         var method = 'POST';
         var url = urlGetSociatyVisitDetail;
         var queryString = {
@@ -315,11 +344,12 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var setSociatyPlayerVisit = function (playerVisitId, playerVisitDetailId) {
+    var setSociatyPlayerVisit = async function (playerVisitId, playerVisitDetailId) {
         var method = 'POST';
         var url = urlSetSociatyPlayerVisit;
         var queryString = {
@@ -334,28 +364,29 @@
             'TEAM_USER_TOKEN': token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskSociatyVisit = function () {
+    var taskSociatyVisit = async function () {
         for (let i in VISIT_ID) {
-            var detail = getSociatyVisitDetail(VISIT_ID[i]);
+            var detail = await getSociatyVisitDetail(VISIT_ID[i]);
             var info = detail.result['visit_info'][0];
             if (info['is_free']) {
-                setSociatyPlayerVisit(VISIT_ID[i], info['id']);
+                await setSociatyPlayerVisit(VISIT_ID[i], info['id']);
             }
         }
-
+        log(`公会免费拜访任务Done~`);
     }
     //#endregion
 
     //#region run
-    getDailyReward();
-    getVipGetBossChallenge();
-    taskMonthSign();
-    taskBuyFreeGift();
-    taskSociatySign();
-    taskSociatyVisit();
+    await getDailyReward();
+    await getVipGetBossChallenge();
+    await taskMonthSign();
+    await taskBuyFreeGift();
+    await taskSociatySign();
+    await taskSociatyVisit();
     //#endregion
 }())
