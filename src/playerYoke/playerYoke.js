@@ -1,8 +1,8 @@
 // @name         playerYoke
-// @version      0.13b
+// @version      0.14
 // @description  NBA英雄 playerYoke
 // @author       Cath
-// @update       1.问题版本待修正
+// @update       1.解决了各种异步函数需要同步等待的问题
 
 (function () {
     //#region constant
@@ -50,24 +50,7 @@
     var server = 'hupu', // 按需设置渠道，'hupu'=虎扑区, 'tt'=微信区
         service = 1; //按需设置区服, 1即代表XX 1区
 
-
-    // let lineupArr = [//阵容
-
-    //     ['达米安-利拉德', '保罗-乔治', '科怀-伦纳德', 'G-安特托孔波', '尼科拉-约基奇'],//第一阵容，10987
-    //     ['R-威斯布鲁克', '保罗-乔治', '吉米-巴特勒', 'G-安特托孔波', '尼科拉-约基奇'],//第二阵容，65
-    //     ['R-威斯布鲁克', '詹姆斯-哈登', '吉米-巴特勒', 'G-安特托孔波', '尼科拉-约基奇'],//第三阵容，4
-    //     ['R-威斯布鲁克', '詹姆斯-哈登', '本-西蒙斯', 'G-安特托孔波', '尼科拉-约基奇'],//第四阵容，32
-    //     ['R-威斯布鲁克', '詹姆斯-哈登', '本-西蒙斯', '乔尔-恩比德', '凯文-勒夫'],//第五阵容，1
-    // ];
-    // let yokeArr = [//羁绊
-    //     ['卡椒兄弟', '欧洲MVP'],
-    //     ['龟椒组合', '欧洲MVP'],
-    //     ['威登组合', '欧洲MVP'],
-    //     ['威登组合', '欧洲MVP'],
-    //     ['UCLA兄弟', '登帝组合']
-    // ]
     let lineupArr = [//阵容
-
         ['R-威斯布鲁克', '保罗-乔治', '科怀-伦纳德', '乔尔-恩比德', '安德烈-德拉蒙德'],//第一阵容，10987
         ['R-威斯布鲁克', '保罗-乔治', '科怀-伦纳德', '凯文-勒夫', '安东尼-戴维斯'],//第二阵容，65
         ['詹姆斯-哈登', '斯蒂芬-库里', '吉米-巴特勒', 'G-安特托孔波', '尼科拉-约基奇'],//第三阵容，432
@@ -129,6 +112,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         if (comment !== 0) {
             comment = comment || '';
@@ -149,7 +148,7 @@
     //#endregion
 
     //#region method
-    var getYokeStageList = function (stageID) {
+    var getYokeStageList = async function (stageID) {
         var method = 'GET';
         var url = urlYokeStageList;
         var queryString = {
@@ -159,11 +158,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getPlayerCardList = function (pos, offset, limit, sort, quality) {
+    var getPlayerCardList = async function (pos, offset, limit, sort, quality) {
         var method = 'POST';
         var url = urlPlayerCardList;
         var queryString = {
@@ -187,7 +187,8 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
@@ -208,11 +209,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getMoreYokeStageFight = function (stageDetailID, num) {
+    var getMoreYokeStageFight = async function (stageDetailID, num) {
         var method = 'POST';
         var url = urlMoreYokeStageFight;
         var queryString = {
@@ -228,11 +230,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getRecover = function (cardsID) {
+    var getRecover = async function (cardsID) {
         var method = 'POST';
         var url = urlRecover;
         var queryString = {
@@ -246,11 +249,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getPlayerFightLineup = function (lineupId, cardId, pos, lineupType = 14) {
+    var getPlayerFightLineup = async function (lineupId, cardId, pos, lineupType = 14) {
         var method = 'POST';
         var url = urlPlayerFightLineup;
         var queryString = {
@@ -267,11 +271,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getLineupYokeList = function (lineupId) {
+    var getLineupYokeList = async function (lineupId) {
         var method = 'POST';
         var url = urlLineupYokeList;
         var queryString = {
@@ -286,11 +291,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getSetPlayerLineupYoke = function (lineupId, yokeIds) {
+    var getSetPlayerLineupYoke = async function (lineupId, yokeIds) {
         var method = 'POST';
         var url = urlSetPlayerLineupYoke;
         var queryString = {
@@ -305,91 +311,74 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
     var setLinupAndYoke = async function (lineupId, lineupDict, lineupArr, yokeArr) {
-        // lineupArr.map((item, idx) => {//第一阵容上阵
-        //     getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
-        // })
+        for (let i = 0; i < lineupArr.length; i++) {
+            await getPlayerFightLineup(lineupId, lineupDict[lineupArr[i]], i + 1);
+        }
+        log(`球员上阵完成~`);
 
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[0]], 1);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[1]], 2);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[2]], 3);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[3]], 4);
-        await sleep(800);
-        getPlayerFightLineup(lineupId, lineupDict[lineupArr[4]], 5);
-        await sleep(800);
-
-
-        if (yokeArr.length) {//第一阵容羁绊
-            let yokeList = getLineupYokeList(lineupId).result[2];
+        if (yokeArr.length) {//阵容羁绊
+            let yokeList = (await getLineupYokeList(lineupId)).result[2];
             let yokeSetList = yokeArr.map(item => yokeList.find(yoke => yoke['title'] === item)['yoke_id']);
-            getSetPlayerLineupYoke(lineupId, yokeSetList);
+            await getSetPlayerLineupYoke(lineupId, yokeSetList);
+            log(`阵容羁绊完成~`);
         }
     }
 
     var taskPlayerYoke = async function () {
-        const stagelist = getYokeStageList(2).result;//普通难度
-        let cardList = getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡']).result['list'];//获取全部位置的金卡卡牌列表
-        // getPlayerCardList(1,0,30,2,'battle',stagelist['challenge_info']['lineup_id']);//获取卡牌列表
+        const stagelist = (await getYokeStageList(2)).result;//普通难度
+        let cardList = (await getPlayerCardList(PLAYER_POS['全部'], 0, 100, PLAYER_SORT['战力'], PLAYER_QUALITY['金卡'])).result['list'];//获取全部位置的金卡卡牌列表
         const lineupSet = new Set(lineupArr.flat());
         cardList = cardList.filter(item => lineupSet.has(item.card_info.base_name));//只保留阵容球员信息
 
-        // cardList.map((item, idx) => {//只保留能力值最高的卡牌
-        //     const starList = getStarList(item.id).result['list'];
-        //     for (star of starList) {
-        //         if (star.card_info.ability > cardList[idx].card_info.ability) {
-        //             cardList[idx] = star;
-        //         }
-        //     }
-        // })
-
-        for (let i = 0; i < cardList.length; i++) {
-            const starList = getStarList(cardList[0].id).result['list'];
+        for (let i = 0; i < cardList.length; i++) {//只保留能力值最高的卡牌
+            const starList = (await getStarList(cardList[i].id)).result['list'];//获取该球员的所有卡牌
             for (star of starList) {
                 if (star.card_info.ability > cardList[i].card_info.ability) {
                     cardList[i] = star;
                 }
             }
-            await sleep(800);
         }
-
 
         const lineupId = stagelist['challenge_info']['lineup_id'];
         const lineupDict = cardList.reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
 
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
-        getMoreYokeStageFight(100032, 1);//指定关卡，10
-        await sleep(1000);
-        getMoreYokeStageFight(100032, 1);//9
-        await sleep(1000);
-        getMoreYokeStageFight(100032, 1);//8
-        await sleep(1000);
-        getMoreYokeStageFight(100032, 1);//7
-        await sleep(1000);
-        // getRecover(lineupDict['G-安特托孔波']);//恢复两人体力
-        // getRecover(lineupDict['尼科拉-约基奇']);//恢复两人体力
-        getRecover(lineupDict['科怀-伦纳德']);//恢复体力
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
-        getMoreYokeStageFight(100030, 1);//6
-        await sleep(1000);
-        getMoreYokeStageFight(100030, 1);//5
-        await sleep(1000);
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
-        getMoreYokeStageFight(100030, 1);//4
-        await sleep(1000);
-        getMoreYokeStageFight(100030, 1);//3
-        await sleep(1000);
-        getMoreYokeStageFight(100030, 1);//2
-        await sleep(1000);
-        setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
-        // setLinupAndYoke(lineupId, lineupDict, lineupArr[4], yokeArr[4]);//第五阵容
-        getMoreYokeStageFight(100031, 1);//1
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
+        log(`第一阵容上阵完成~`);
+        await getMoreYokeStageFight(100032, 1);//指定关卡，10
+        log(`羁绊强化第1场完成~`);
+        await getMoreYokeStageFight(100032, 1);//9
+        log(`羁绊强化第2场完成~`);
+        await getMoreYokeStageFight(100032, 1);//8
+        log(`羁绊强化第3场完成~`);
+        await getMoreYokeStageFight(100032, 1);//7
+        log(`羁绊强化第4场完成~`);
+        await getRecover(lineupDict['科怀-伦纳德']);//恢复体力
+        log(`恢复球员体力完成~`);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
+        log(`第二阵容上阵完成~`);
+        await getMoreYokeStageFight(100031, 1);//6
+        log(`羁绊强化第5场完成~`);
+        await getMoreYokeStageFight(100031, 1);//5
+        log(`羁绊强化第6场完成~`);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
+        log(`第三阵容上阵完成~`);
+        await getMoreYokeStageFight(100030, 1);//4
+        log(`羁绊强化第7场完成~`);
+        await getMoreYokeStageFight(100030, 1);//3
+        log(`羁绊强化第8场完成~`);
+        await getMoreYokeStageFight(100030, 1);//2
+        log(`羁绊强化第9场完成~`);
+        await setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
+        log(`第四阵容上阵完成~`);
+        await getMoreYokeStageFight(100031, 1);//1
+        log(`羁绊强化第10场完成~`);
+        log(`羁绊强化任务Done~`);
     }
     //#endregion
 
