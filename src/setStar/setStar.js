@@ -1,5 +1,5 @@
 // @name         setStar
-// @version      0.23c
+// @version      0.23d
 // @description  NBA英雄 setStar
 // @author       Cath
 // @update       1.fetch延时测试版
@@ -233,5 +233,6 @@
     //#region run
     await taskGoldenCardSetStar();
     await taskSilverCardSetStar();
+    log(`升星任务Done~`);
     //#endregion
 }())
