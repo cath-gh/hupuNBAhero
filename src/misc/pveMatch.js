@@ -1,8 +1,8 @@
 // @name         pveMatch
-// @version      0.13
+// @version      0.13b
 // @description  NBA英雄 冠军经理积分赛
 // @author       Cath
-// @update       1.启用Fetch+延时版本
+// @update       1.补充sleep函数
 
 (async function () {
     //#region constant
@@ -95,6 +95,12 @@
             console.info('%c%s : %s', 'color:blue;font-weight:bold', Date().toString(), comment);
             console.info(value);
         }
+    }
+    
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
     }
     //#endregion
 
