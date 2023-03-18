@@ -1,10 +1,10 @@
 // @name         activity
-// @version      0.2
+// @version      0.21
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.新增吉祥好物活动领取隐藏奖励
+// @update       1.启用Fetch+延时版本，季度卡活动待修改
 
-(function () {
+(async function () {
     //#region constant
     const GROUP_ID = {
         '常规活动': 0,//general
@@ -110,6 +110,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -122,7 +138,7 @@
     //#endregion
 
     //#region method
-    var getActivityIndex = function (groupID) {
+    var getActivityIndex = async function (groupID) {
         var method = 'GET';
         var url = urlActivityIndex;
         var queryString = {
@@ -134,11 +150,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getActivityDetail = function (id) {
+    var getActivityDetail = async function (id) {
         var method = 'GET';
         var url = urlActivityDetail;
         var queryString = {
@@ -150,11 +167,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getActivityReward = function (id) {
+    var getActivityReward = async function (id) {
         var method = 'GET';
         var url = urlActivityReward;
         var queryString = {
@@ -164,11 +182,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getActivityPokerList = function (activityID) {
+    var getActivityPokerList = async function (activityID) {
         var method = 'GET';
         var url = urlActivityPokerList;
         var queryString = {
@@ -178,11 +197,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getActivityPoker = function (id, cardID, num) {
+    var getActivityPoker = async function (id, cardID, num) {
         var method = 'POST';
         var url = urlActivityPoker;
         var queryString = {
@@ -198,11 +218,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getCollectionList = function (activityType) {
+    var getCollectionList = async function (activityType) {
         var method = 'GET';
         var url = urlCollectionList;
         var queryString = {
@@ -214,11 +235,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getGuessCardShop = function (activityType, collectionID) {
+    var getGuessCardShop = async function (activityType, collectionID) {
         var method = 'POST';
         var url = urlGuessCardShop;
         var queryString = {
@@ -237,11 +259,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getActicitySubList = function (id) {
+    var getActicitySubList = async function (id) {
         var method = 'GET';
         var url = urlActivitySubList;
         var queryString = {
@@ -251,11 +274,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getStageAreaList = function (type, levelID, parentID) {
+    var getStageAreaList = async function (type, levelID, parentID) {
         var method = 'POST';
         var url = urlStageAreaList;
         var queryString = {
@@ -271,11 +295,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getMoreFight = function (stageID, num = 5, type = 3) {
+    var getMoreFight = async function (stageID, num = 5, type = 3) {
         var method = 'POST';
         var url = urlMoreFight;
         var queryString = {
@@ -291,11 +316,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getRichNPCEnter = function (activityID, npcID) {
+    var getRichNPCEnter = async function (activityID, npcID) {
         var method = 'POST';
         var url = urlRichNPCEnter;
         var queryString = {
@@ -310,11 +336,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getRichMove = function (activityID) {
+    var getRichMove = async function (activityID) {
         var method = 'POST';
         var url = urlRichMove;
         var queryString = {
@@ -328,11 +355,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getLegendStageIndex = function (activityID) {
+    var getLegendStageIndex = async function (activityID) {
         var method = 'GET';
         var url = urlLegendStageIndex;
         var queryString = {
@@ -342,11 +370,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getLegendStageBaseinfo = function (activityID, legendStageID) {
+    var getLegendStageBaseinfo = async function (activityID, legendStageID) {
         var method = 'GET';
         var url = urlLegendStageBaseinfo;
         var queryString = {
@@ -357,11 +386,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getLegendStageList = function (activityID, legendStageID) {
+    var getLegendStageList = async function (activityID, legendStageID) {
         var method = 'GET';
         var url = urlLegendStageList;
         var queryString = {
@@ -375,11 +405,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getLegendStageFight = function (activityID, stageID) {
+    var getLegendStageFight = async function (activityID, stageID) {
         var method = 'POST';
         var url = urlLegendStageFight;
         var queryString = {
@@ -394,11 +425,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getWishingWell = function (activityID) {
+    var getWishingWell = async function (activityID) {
         var method = 'GET';
         var url = urlWishingWell;
         var queryString = {
@@ -408,11 +440,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getBuyWishingWell = function (activityID, index, day) {
+    var getBuyWishingWell = async function (activityID, index, day) {
         var method = 'POST';
         var url = urlBuyWishingWell;
         var queryString = {
@@ -428,11 +461,12 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getChristmasGift = function (activityID) {
+    var getChristmasGift = async function (activityID) {
         var method = 'GET';
         var url = urlChristmasGift;
         var queryString = {
@@ -442,11 +476,12 @@
             os: 'm'
         };
 
-        var res = getXhr(method, url, queryString, null);
+        // var res = getXhr(method, url, queryString, null);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getReceiveChristmasGift = function (activityID) {
+    var getReceiveChristmasGift = async function (activityID) {
         var method = 'POST';
         var url = urlReceiveChristmasGift;
         var queryString = {
@@ -460,155 +495,162 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
     var activityList = [];
-    var taskGetActivityIndex = function () {
+    var taskGetActivityIndex = async function () {
         for (value of Object.values(GROUP_ID)) {
-            let list = getActivityIndex(value).result['list'];
+            let list = (await getActivityIndex(value)).result['list'];
             activityList = activityList.concat(list);
         }
+        log(`获取活动索引Done~`);
     }
 
-    var taskDailySign = function () {
+    var taskDailySign = async function () {
         var activity = activityList.filter(item => item['title'].includes('每日签到'));
-        if (activity.length) {
-            activity.map(item => {
-                var activityID = item['id'];
-                var rewardID = getActivityDetail(activityID).result['list'][0]['id'];
-                getActivityReward(rewardID);
-            })
+        for (let item of activity) {
+            let activityID = item['id'];
+            let rewardID = (await getActivityDetail(activityID)).result['list'][0]['id'];
+            await getActivityReward(rewardID);
         }
+        log(`每日签到Done~`);
     }
 
-    var taskPoker = function () {//扑克牌
+    var taskPoker = async function () {//扑克牌
         var activity = activityList.find(item => item['title'].includes('扑克牌'));
         if (activity) {
             var activityID = activity['id'];
-            var pokerList = getActivityPokerList(activityID).result;
+            var pokerList = (await getActivityPokerList(activityID)).result;
             // let cardID = pokerList['card_list'].find(item => item['name'] === '姚明')['id'];//就投姚明
             let cardID = pokerList['card_list'][0]['id'];//就投第一个
             if (pokerList['remain_time'] === 0) {//有免费票
-                getActivityPoker(pokerList['id'], cardID, 1);
+                await getActivityPoker(pokerList['id'], cardID, 1);
             }
             var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
             var num = pokerList['player_resource'][POKER_TICKET[round]];
             if (num) {//剩余票
-                getActivityPoker(pokerList['id'], cardID, num);
+                await getActivityPoker(pokerList['id'], cardID, num);
             }
         }
+        log(`扑克牌Done~`);
     }
 
-    var taskCollection = function (collectionID = COLLECTION_ID['西南赛区']) {//集卡
+    var taskCollection = async function (collectionID = COLLECTION_ID['太平洋赛区']) {//集卡
         var activity = activityList.find(item => item['title'].includes('集卡'));
         if (activity) {
             var activityType = activity['type'];
-            var collcetionList = getCollectionList(activityType).result;
+            var collcetionList = (await getCollectionList(activityType)).result;
             if (collcetionList['next_interval_time'] === 0) {//存在免费抽卡
-                getGuessCardShop(activityType, collectionID);
+                await getGuessCardShop(activityType, collectionID);
             }
         }
+        log(`集卡Done~`);
     }
 
-    var taskSeason = function () {//季度卡活动
+    var taskSeason = async function () {//季度卡活动
         var activity = activityList.find(item => item['title'].includes('季度卡'));
         if (activity) {
             var activityID = activity['id'];
-            var subList = getActicitySubList(activityID).result['list'];
+            var subList = (await getActicitySubList(activityID)).result['list'];
 
             var detailID = subList.find(item => item['title'].includes('签到'))['id'];//签到
-            var rewardID = getActivityDetail(detailID).result['list'][0]['id'];
-            getActivityReward(rewardID);
+            var rewardID = (await getActivityDetail(detailID)).result['list'][0]['id'];
+            await getActivityReward(rewardID);
 
             var detailLinkID = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
             var stageAreaList = getStageAreaList(detailLinkID[2], detailLinkID[0], detailLinkID[1]).result;
             var stageID = stageAreaList['stage_list'][4]['id'];//最后一关id
             getMoreFight(stageID, stageAreaList['challenge_times']);
         }
+        log(`季度卡Done~`);
     }
 
-    var taskSevenSign = function () {//七日签到活动
+    var taskSevenSign = async function () {//七日签到活动
         var activity = activityList.filter(item => item['title'].includes('7日签到'));
-        if (activity.length) {
-            activity.map(item => {
-                var activityID = item['id'];
-                var rewardID = getActivityDetail(activityID).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
-                if (rewardID) getActivityReward(rewardID['id']);
-            })
+        for (let item of activity) {
+            let activityID = item['id'];
+            let rewardID = (await getActivityDetail(activityID)).result['list'].find(item => item['player_info']['reward_times'] === '0' && item['player_info']['state'] === '1');
+            if (rewardID) await getActivityReward(rewardID['id']);
         }
+        log(`七日签到Done~`);
     }
 
-    var taskRich = function () {//大富翁活动
+    var taskRich = async function () {//大富翁活动
         var activity = activityList.find(item => item['title'].includes('大富翁'));
         if (activity && activity['has_free']) {//存在活动且有免费次数
             var activityID = activity['id'];
-            getRichNPCEnter(activityID, 1);//默认选择第一个角色
-            getRichMove(activityID);
+            await getRichNPCEnter(activityID, 1);//默认选择第一个角色
+            await getRichMove(activityID);
         }
+        log(`大富翁Done~`);
     }
 
-    var taskLegend = function () {//巨星挑战活动
+    var taskLegend = async function () {//巨星挑战活动
         var activity = activityList.find(item => item['title'].includes('巨星挑战'));
         if (activity) {
             var activityID = activity['id'];
-            var stageIndex = getLegendStageIndex(activityID).result;
+            var stageIndex = (await getLegendStageIndex(activityID)).result;
 
             //签到
-            var subList = getActicitySubList(activityID).result;
+            var subList = (await getActicitySubList(activityID)).result;
             var detailID = subList['list'].find(item => item['title'].includes('签到'))['id'];
             if (subList['red_list'][detailID]) {//尚未签到则执行
-                var rewardID = getActivityDetail(detailID).result['list'][0]['id'];
-                getActivityReward(rewardID);
+                var rewardID = (await getActivityDetail(detailID)).result['list'][0]['id'];
+                await getActivityReward(rewardID);
             }
 
             //挑战
-            var stageBaseinfo = getLegendStageBaseinfo(activityID, 2).result;//默认挑战字母
+            var stageBaseinfo = (await getLegendStageBaseinfo(activityID, 2)).result;//默认挑战字母
             var num = parseInt(stageBaseinfo['player_stage_info']['challenge_times']);//剩余挑战次数
-            var stageList = getLegendStageList(activityID, 2).result['list'];//默认挑战字母
-            // var stageID = parseInt(stageList.find(item => item['is_current'])['id']);
-            var stageID = 2105;//挑战指定关卡
+            var stageList = (await getLegendStageList(activityID, 2)).result['list'];//默认挑战字母
+            var stageID = parseInt(stageList.find(item => item['is_current'])['id']);
+            // var stageID = 2105;//挑战指定关卡
             for (let i = 0; i < num; i++) {
-                getLegendStageFight(activityID, stageID);
-                // stageID += 1;
+                await getLegendStageFight(activityID, stageID);
+                stageID += 1;
             }
         }
+        log(`巨星挑战Done~`);
     }
 
-    var taskWishingWell = function () {
+    var taskWishingWell = async function () {
         var activity = activityList.find(item => item['title'].includes('许愿池'));
         if (activity) {
             var activityID = activity['id'];
-            var wishingWell = getWishingWell(activityID).result;
+            var wishingWell = (await getWishingWell(activityID)).result;
             if (wishingWell['is_free']) {
-                getBuyWishingWell(activityID, 1, wishingWell['day']);//随便选一个
+                await getBuyWishingWell(activityID, 1, wishingWell['day']);//随便选一个
             }
         }
+        log(`许愿池Done~`);
     }
 
-    var taskChristmasGift = function () {
+    var taskChristmasGift = async function () {
         var activity = activityList.find(item => item['title'].includes('吉祥好物'));
         if (activity) {
             var activityID = activity['id'];
-            var christamsGift = getChristmasGift(activityID).result;
+            var christamsGift = (await getChristmasGift(activityID)).result;
             if (christamsGift['can_receive'] === 1) {
-                getReceiveChristmasGift(activityID);
+                await getReceiveChristmasGift(activityID);
             }
         }
+        log(`圣诞礼物Done~`);
     }
     //#endregion
 
     //#region run
-    taskGetActivityIndex();
-    taskDailySign();
-    taskPoker();
-    taskCollection();
-    taskSeason();
-    taskSevenSign();
-    taskRich();
-    taskLegend();
-    taskWishingWell();
-    taskChristmasGift();
+    await taskGetActivityIndex();
+    await taskDailySign();
+    await taskPoker();
+    await taskCollection();
+    await taskSeason();
+    await taskSevenSign();
+    await taskRich();
+    await taskLegend();
+    await taskWishingWell();
+    await taskChristmasGift();
     //#endregion
 }())
