@@ -1,10 +1,10 @@
 // @name         playerBattle
-// @version      0.11b1
+// @version      0.12
 // @description  NBA英雄 playerBattle
 // @author       Cath
-// @update       1.很难处理的版本
+// @update       1.解决了各种异步函数需要同步等待的问题
 
-// (function () {
+(function () {
     //#region constant
     const URLPATH_BATTLE_LAST_SELECT = '/Battle/lastSelect';//一键导入上一次选人
     const URLPATH_BATTLE_SAVE_SELECT = '/battle/saveSelect';//保存选人
@@ -334,18 +334,20 @@
     }
 
     var setLinupAndYoke = async function (lineupId, lineupDict, lineupArr, yokeArr) {
-        await Promise.all(lineupArr.map((item, idx) => {//阵容上阵
-            return getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
-        }))
+        // await Promise.all(lineupArr.map((item, idx) => {//阵容上阵
+        //     return getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
+        // }))
 
-        // await lineupArr.map((item, idx) => {//阵容上阵
-        //     getPlayerFightLineup(lineupId, lineupDict[item], idx + 1);
-        // })
+        for (let i = 0; i < lineupArr.length; i++) {
+            await getPlayerFightLineup(lineupId, lineupDict[lineupArr[i]], i + 1);
+        }
+        log(`球员上阵完成~`);
 
         if (yokeArr.length) {//阵容羁绊
-            let yokeList = await getLineupYokeList(lineupId).result[2];
+            let yokeList = (await getLineupYokeList(lineupId)).result[2];
             let yokeSetList = yokeArr.map(item => yokeList.find(yoke => yoke['title'] === item)['yoke_id']);
             await getSetPlayerLineupYoke(lineupId, yokeSetList);
+            log(`阵容羁绊完成~`);
         }
     }
 
@@ -388,37 +390,54 @@
     }
 
     var tastBattle = async function () {
-        const lastSelect = await getBattleLastSelect().result['list'];
+        const lastSelect = (await getBattleLastSelect()).result['list'];
         const cardsIds = lastSelect.map(item => item['id']);
         await getBattleSaveSelect(cardsIds);//一键导入
 
-        const lineupId = await getBattleLineup().result;//阵容ID
+        const lineupId = (await getBattleLineup()).result;//阵容ID
         const lineupDict = lastSelect.reduce((obj, item) => { obj[item['card_info']['base_name']] = item['id']; return obj }, {})
 
 
         await setLinupAndYoke(lineupId, lineupDict, lineupArr[0], yokeArr[0]);//第一阵容
+        log(`第一阵容上阵完成~`);
         await getBattleChallenge(1);
+        log(`血战第1场完成~`);
         await getBattleChallenge(2);
+        log(`血战第2场完成~`);
         await getBattleChallenge(3);
+        log(`血战第3场完成~`);
         await setLinupAndYoke(lineupId, lineupDict, lineupArr[1], yokeArr[1]);//第二阵容
+        log(`第二阵容上阵完成~`);
         await getBattleChallenge(4);
+        log(`血战第4场完成~`);
         await setLinupAndYoke(lineupId, lineupDict, lineupArr[2], yokeArr[2]);//第三阵容
+        log(`第三阵容上阵完成~`);
         await getBattleChallenge(5);
+        log(`血战第5场完成~`);
         await getBattleChallenge(6);
+        log(`血战第6场完成~`);
         await getBattleChallenge(7);
+        log(`血战第7场完成~`);
         await setLinupAndYoke(lineupId, lineupDict, lineupArr[3], yokeArr[3]);//第四阵容
+        log(`第四阵容上阵完成~`);
         await getBattleChallenge(8);
+        log(`血战第8场完成~`);
         await getBattleChallenge(9);
+        log(`血战第9场完成~`);
         await getBattleChallenge(10);
+        log(`血战第10场完成~`);
 
-        const rewardList = await getBattleBarrier().result['star_reward_list'];
+        const rewardList = (await getBattleBarrier()).result['star_reward_list'];
         const rewardIdList = rewardList.filter(item => item['reward_status'] === 1).map(item => item['points_reward_id']);
-        await rewardIdList.map(item => getGainStarReward(item));
-
+        // await rewardIdList.map(item => getGainStarReward(item));
+        for (item of rewardIdList) {
+            await getGainStarReward(item);
+        }
+        log(`血战任务Done~`);
     }
     //#endregion
 
     //#region run
-    // tastBattle();
+    tastBattle();
     //#endregion
-// }())
+}())
