@@ -1,8 +1,8 @@
 // @name         taskDaily
-// @version      0.17
+// @version      0.17b
 // @description  NBA英雄 每日任务
 // @author       Cath
-// @update       1.更改描述
+// @update       1.补充sleep函数
 
 (async function () {
     //#region constant
@@ -107,6 +107,12 @@
             console.info('%c%s : %s', 'color:blue;font-weight:bold', Date().toString(), comment);
             console.info(value);
         }
+    }
+    
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
     }
     //#endregion
 
