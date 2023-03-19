@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.21b
+// @version      0.22
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.补充sleep函数，季度卡活动待修改
+// @update       1.修复季度卡活动
 
 (async function () {
     //#region constant
@@ -36,6 +36,7 @@
     const URLPATH_ACTICITY_SUBLIST = '/Activity/subList';//季度卡活动、巨星挑战活动子列表
     const URLPATH_STAGE_AREA_LIST = '/PlayerFight/stageAreaList';//季度卡活动
     const URLPATH_MORE_FIGHT = '/PlayerFight/moreFight';//季度卡活动
+    const URLPATH_STAGE_FIGHT = '/PlayerFight/stageFight';//季度卡挑战活动
     const URLPATH_RICH_NPC_ENTER = '/Activity/richNpcEnter';//大富翁活动选择角色
     const URLPATH_RICH_MOVE = '/Activity/richMove';//大富翁活动移动
     const URLPATH_LEGEND_STAGE_INDEX = '/activity/getLegendStageIndex';//巨星挑战活动
@@ -67,6 +68,7 @@
     var urlActivitySubList = `${urlHost}${URLPATH_ACTICITY_SUBLIST}`;
     var urlStageAreaList = `${urlHost}${URLPATH_STAGE_AREA_LIST}`;
     var urlMoreFight = `${urlHost}${URLPATH_MORE_FIGHT}`;
+    var urlStageFight = `${urlHost}${URLPATH_STAGE_FIGHT}`;
     var urlRichNPCEnter = `${urlHost}${URLPATH_RICH_NPC_ENTER}`;
     var urlRichMove = `${urlHost}${URLPATH_RICH_MOVE}`;
     var urlLegendStageIndex = `${urlHost}${URLPATH_LEGEND_STAGE_INDEX}`;
@@ -135,7 +137,7 @@
             console.info(value);
         }
     }
-    
+
     var sleep = async function (time) {
         return new Promise(function (resolve, reject) {
             setTimeout(resolve, time)
@@ -285,7 +287,7 @@
         return res;
     }
 
-    var getStageAreaList = async function (type, levelID, parentID) {
+    var getStageAreaList = async function (activityID, type, levelID, parentID) {
         var method = 'POST';
         var url = urlStageAreaList;
         var queryString = {
@@ -295,6 +297,7 @@
         };
 
         data = {
+            activity_id: activityID,
             type: type,
             level_id: levelID,
             parent_id: parentID,
@@ -319,6 +322,26 @@
             stage_id: stageID,
             num: num,
             type: type,
+            TEAM_USER_TOKEN: token
+        }
+
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getStageFight = async function (stageID) {
+        var method = 'POST';
+        var url = urlStageFight;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            stage_id: stageID,
+            type: 3,
             TEAM_USER_TOKEN: token
         }
 
@@ -566,10 +589,15 @@
             var rewardID = (await getActivityDetail(detailID)).result['list'][0]['id'];
             await getActivityReward(rewardID);
 
-            var detailLinkID = subList.find(item => item['title'].includes('挑战关卡'))['link_id'].split(',');//挑战关卡5次
-            var stageAreaList = getStageAreaList(detailLinkID[2], detailLinkID[0], detailLinkID[1]).result;
-            var stageID = stageAreaList['stage_list'][4]['id'];//最后一关id
-            getMoreFight(stageID, stageAreaList['challenge_times']);
+            var subItem = subList.find(item => item['title'].includes('挑战关卡'))
+            var detailLinkID = subItem['link_id'].split(',');//挑战关卡5次
+            var stageAreaList = (await getStageAreaList(subItem['id'], detailLinkID[2], detailLinkID[0], detailLinkID[1])).result;
+            var num = stageAreaList['challenge_times'];
+            var stageID = parseInt(stageAreaList['stage_list'].find(item => item['is_lock'] === 1)['id']) - 1;//第一个未解锁关卡
+            for (let i = 0; i < num; i++) {
+                await getStageFight(stageID);
+                stageID += 1;
+            }
         }
         log(`季度卡Done~`);
     }
