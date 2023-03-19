@@ -1,8 +1,8 @@
 // @name         playerBattle
-// @version      0.12
+// @version      0.12b
 // @description  NBA英雄 血战
 // @author       Cath
-// @update       1.修改描述
+// @update       1.修正拼写错误
 
 (function () {
     //#region constant
@@ -389,7 +389,7 @@
         return res;
     }
 
-    var tastBattle = async function () {
+    var taskBattle = async function () {
         const lastSelect = (await getBattleLastSelect()).result['list'];
         const cardsIds = lastSelect.map(item => item['id']);
         await getBattleSaveSelect(cardsIds);//一键导入
@@ -438,6 +438,6 @@
     //#endregion
 
     //#region run
-    tastBattle();
+    taskBattle();
     //#endregion
 }())
