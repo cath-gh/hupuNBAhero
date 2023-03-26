@@ -1,13 +1,21 @@
 // @name         experience
-// @version      0.2a
+// @version      0.21
 // @description  NBA英雄 冠军经理历练
 // @author       Cath
-// @update       1. 未完成版本
+// @update       1. 修改后第一个测试版本
 
-(function () {
+(async function () {
     //#region constant
+    const ARENA_ID = {
+        '东部训练': '1',
+        '东部特训': '2',
+        '西部训练': '3',
+        '西部特训': '4',
+        '历练之路': '5'
+    }
     const URLPATH_ARENA_INDEX = '/PlayerScoutFight/arenaIndex';//冠军经理历练索引
     const URLPATH_GET_ARENA_DETAIL = '/PlayerScoutFight/getArenaDetail';//冠军经理历练详情
+    const URLPATH_ARENA_MATCH = '/PlayerScoutFight/arenaMatch';//冠军经理历练挑战
     //#endregion
 
     //#region config
@@ -21,6 +29,7 @@
     var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
     var urlArenaIndex = `${urlHost}${URLPATH_ARENA_INDEX}`;
     var urlGetArenaDetail = `${urlHost}${URLPATH_GET_ARENA_DETAIL}`;
+    var urlArenaMatch = `${urlHost}${URLPATH_ARENA_MATCH}`;
     //#endregion
 
     //#region utils
@@ -125,14 +134,53 @@
         return res;
     }
 
+    var getArenaMatch = async function (arenaID, detailID) {
+        var method = 'POST';
+        var url = urlArenaMatch;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
 
+        data = {
+            arena_id: arenaID,
+            detail_id: detailID,
+            TEAM_USER_TOKEN: token
+        }
+
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var taskTrain = async function (arenaID) {
+        var arenaDetail = (await getArenaDetail(arenaID)).result;
+        var detailID;
+        if (arenaID !== ARENA_ID['历练之路']) {//普通训练及特训
+            let playerLevel = parseInt(arenaDetail['player_level']);
+            detailID = arenaDetail['list'][playerLevel]['id'];
+        } else {
+            detailID = parseInt((await getArenaDetail(ARENA_ID['历练之路'])).result['curr_detail']);
+        }
+
+        for (let i = 0; i < 3; i++) {
+            await getArenaMatch(arenaID, detailID);
+            detailID = arenaID === ARENA_ID['历练之路'] ? detailID + 1 : detailID;
+        }
+    }
 
     var taskExperience = async function () {
         var arenaList = (await getArenaIndex()).result['list'];
+        for (let i = 0; i < arenaList.length; i++) {
+            if (arenaList[i]['is_open']) {
+                await taskTrain(arenaList[i]['id']);
+            }
+        }
     }
     //#endregion
 
     //#region run
-    // taskExperience();
+    taskExperience();
     //#endregion
 }())
