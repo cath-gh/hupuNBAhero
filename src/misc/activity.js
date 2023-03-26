@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.22
+// @version      0.23
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修复季度卡活动
+// @update       1.增加教练扑克牌判断
 
 (async function () {
     //#region constant
@@ -22,6 +22,12 @@
         '2': 'poker_ticket_two',
         '3': 'poker_ticket_three',
         '4': 'poker_ticket_four',
+    };
+    const COACH_POKER_TICKET = {
+        '1': 'coach_poker_ticket_one',
+        '2': 'coach_poker_ticket_two',
+        '3': 'coach_poker_ticket_three',
+        '4': 'coach_poker_ticket_four',
     };
     const URLPATH_COLLECTION_LIST = '/Collect/getCollectionList';//集卡活动
     const URLPATH_GUESS_CARD_SHOP = '/Collect/guessCardShop';//集卡抽卡
@@ -559,7 +565,7 @@
                 await getActivityPoker(pokerList['id'], cardID, 1);
             }
             var round = parseInt(Math.ceil(pokerList['round'] / 4));//猜测使用投票的阶段
-            var num = pokerList['player_resource'][POKER_TICKET[round]];
+            var num = activity['title'].includes('教练') ? pokerList['player_resource'][COACH_POKER_TICKET[round]] : pokerList['player_resource'][POKER_TICKET[round]];
             if (num) {//剩余票
                 await getActivityPoker(pokerList['id'], cardID, num);
             }
