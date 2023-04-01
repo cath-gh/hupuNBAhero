@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.23
+// @version      0.23b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.增加教练扑克牌判断
+// @update       1.固定集卡挑战关卡
 
 (async function () {
     //#region constant
@@ -580,6 +580,7 @@
             var collcetionList = (await getCollectionList(activityType)).result;
             if (collcetionList['next_interval_time'] === 0) {//存在免费抽卡
                 await getGuessCardShop(activityType, collectionID);
+                log(`免费抽卡~`);
             }
         }
         log(`集卡Done~`);
@@ -599,10 +600,11 @@
             var detailLinkID = subItem['link_id'].split(',');//挑战关卡5次
             var stageAreaList = (await getStageAreaList(subItem['id'], detailLinkID[2], detailLinkID[0], detailLinkID[1])).result;
             var num = stageAreaList['challenge_times'];
-            var stageID = parseInt(stageAreaList['stage_list'].find(item => item['is_lock'] === 1)['id']) - 1;//第一个未解锁关卡
+            // var stageID = parseInt(stageAreaList['stage_list'].find(item => item['is_lock'] === 1)['id']) - 1;//第一个未解锁关卡
+            var stageID = '27220';
             for (let i = 0; i < num; i++) {
                 await getStageFight(stageID);
-                stageID += 1;
+                // stageID += 1;
             }
         }
         log(`季度卡Done~`);
