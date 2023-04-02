@@ -1,13 +1,14 @@
 // @name         signScoutRolls
-// @version      0.1
+// @version      0.2
 // @description  NBA英雄 signScoutRolls
 // @author       Cath
-// @update       1.切换为1级球探
+// @update       1.消耗搜索券、球探币版本
 
-(function () {
+(async function () {
     //#region constant
     const URLPATH_GET_CARD_SHOP_LIST = '/Cardshop/getCardShopList';//冠军经理模式球员搜索主页面
-    const URLPATH_GUESS_CARD_SHOP = '/Cardshop/guessCardShop';//搜索球员
+    const URLPATH_GUESS_CARD_SHOP = '/Cardshop/guessCardShop';//单次搜索球员
+    const URLPATH_FIVE_GUESS_CARD_SHOP = '/Cardshop/fiveGuessCardShop';//5次搜索球员
     const URLPATH_SIGN_SCOUT_ROLLS = '/cardShop/signSocutRolls';//签约球员 居然还有拼写错误
     const URLPATH_CHANGE_SCOUT = '/playerScoutFight/changeScout';//切换球探等级
 
@@ -24,6 +25,7 @@
     var urlHost = `https://${server + (service === 1 ? '' : service)}-api.ttnba.cn`;
     var urlGetCardShopList = `${urlHost}${URLPATH_GET_CARD_SHOP_LIST}`;
     var urlGuessCardShop = `${urlHost}${URLPATH_GUESS_CARD_SHOP}`;
+    var urlFiveGuessCardShop = `${urlHost}${URLPATH_FIVE_GUESS_CARD_SHOP}`;
     var urlSignScoutRolls = `${urlHost}${URLPATH_SIGN_SCOUT_ROLLS}`;
     var urlChangeScout = `${urlHost}${URLPATH_CHANGE_SCOUT}`;
     //#endregion
@@ -59,6 +61,22 @@
         return res;
     }
 
+    var getFetch = async function (method, url, query, formData, delay = 850) {//默认延时850ms
+        formData = formData || null;
+        let urlString = concatUrlQuery(url, query);
+        var res = await fetch(urlString, {
+            method: method,
+            body: formData
+        })
+
+        if (!!delay) {
+            await sleep(delay);
+            log(`操作延时：${delay}`);
+        }
+
+        return res.json();
+    }
+
     var log = function (value, comment) {
         comment = comment || '';
         if (typeof (value) === 'string') {
@@ -68,10 +86,16 @@
             console.info(value);
         }
     }
+
+    var sleep = async function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time)
+        })
+    }
     //#endregion
 
     //#region method
-    var getCardShopList = function () {
+    var getCardShopList = async function () {
         var method = 'GET';
         var url = urlGetCardShopList;
         var queryString = {
@@ -84,11 +108,12 @@
             version: '3.0.0'
         };
 
-        var res = getXhr(method, url, queryString);
+        // var res = getXhr(method, url, queryString);
+        var res = await getFetch(method, url, queryString, null);
         return res;
     }
 
-    var getGuessCardShop = function (Id) {
+    var getGuessCardShop = async function (ID) {
         var method = 'POST';
         var url = urlGuessCardShop;
         var queryString = {
@@ -98,7 +123,7 @@
         };
 
         data = {
-            id: Id,
+            id: ID,
             update_time: 0,
             type: 0,
             extra: 3,
@@ -106,11 +131,36 @@
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+
         return res;
     }
 
-    var getSignScoutRolls = function (Id, signIds) {
+    var getFiveGuessCardShop = async function (ID) {
+        var method = 'POST';
+        var url = urlFiveGuessCardShop;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            id: ID,
+            update_time: 0,
+            type: 0,
+            extra: 5,
+            TEAM_USER_TOKEN: token
+        }
+
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+
+        return res;
+    }
+
+    var getSignScoutRolls = async function (ID, signIDs) {
         var method = 'POST';
         var url = urlSignScoutRolls;
         var queryString = {
@@ -120,16 +170,17 @@
         };
 
         data = {
-            id: Id,
-            sign_ids: signIds,
+            id: ID,
+            sign_ids: signIDs,
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var getChangeScout = function (newScoutId) {
+    var getChangeScout = async function (newScoutID) {
         var method = 'POST';
         var url = urlChangeScout;
         var queryString = {
@@ -139,22 +190,37 @@
         };
 
         data = {
-            new_scout_id: newScoutId,
+            new_scout_id: newScoutID,
             TEAM_USER_TOKEN: token
         }
 
-        var res = getXhr(method, url, queryString, JSON.stringify(data));
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
         return res;
     }
 
-    var taskSignScoutRolls = function () {//执行所有赛区半价搜索且不签约任何球员
-        getChangeScout(1);//切换为1级球探
-        var cardShopList = getCardShopList().result['list'];
-        var halfShopList = cardShopList.filter((item) => { return item['remain_half_count'] > 0 });
-        halfShopList.forEach((item) => {
-            getGuessCardShop(item['id']);
-            getSignScoutRolls(item['id'], []);
-        })
+    var taskSignScoutRolls = async function (num) {//执行所有赛区半价搜索且不签约任何球员
+        await getChangeScout(1);//切换为1级球探
+        var cardShopList = (await getCardShopList()).result['list'];
+        // var halfShopList = cardShopList.filter((item) => { return item['remain_half_count'] > 0 });
+
+        // for (let i = 0; i < halfShopList.length; i++) {
+        //     await getGuessCardShop(halfShopList[i]['id']);
+        //     await getSignScoutRolls(halfShopList[i]['id'], []);
+        // }
+
+        var start = Math.ceil(Math.random() * 6) - 1;
+        for (let i = 0; i < 10; i++) {
+            var round = start % 6;
+            var cardList = (await getFiveGuessCardShop(cardShopList[round]['id'])).result['rolls'];
+            var cardIDs = cardList.reduce((arr, item) => { arr.push(item['card_id']); return arr }, [])
+            var exchangeList = (await getSignScoutRolls(cardShopList[round]['id'], cardIDs)).result['exchange_list'];
+            var scoutTicket = exchangeList['reward_list'][0]['award_num'];
+            log(`消耗球探币${scoutTicket}`);
+            start += 1;
+        }
+
+        log(`消耗球探任务Done~`);
     }
     //#endregion
 
