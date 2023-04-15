@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.23b
+// @version      0.24
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.固定集卡挑战关卡
+// @update       1.增加冠军之路投票
 
 (async function () {
     //#region constant
@@ -53,6 +53,16 @@
     const URLPATH_BUY_WISHING_WELL = '/Activity/buyWishingWell';//许愿池选择
     const URLPATH_CHRISTMAS_GIFT = '/activity/getChristmasGift';//吉祥好物
     const URLPATH_RECEIVE_CHRISTMAS_GIFT = '/activity/receiveChristmasGiftHideReward';//吉祥好物领取隐藏奖励
+    const URLPATH_GET_PLAYOFF_ROUND_LIST = '/Activity/getPlayoffRoundList';//冠军之路活动
+    const PLAYOFF_TICKET = {
+        1: 'playoff_ticket_regular',
+        2: 'playoff_ticket_extra',
+        3: 'playoff_ticket_one',
+        4: 'playoff_ticket_two',
+        5: 'playoff_ticket_three',
+        6: 'playoff_ticket_four',
+    };
+    const URLPATH_VOTE_PLAYOFF = '/Activity/votePlayoff';//冠军之路投票
     //#endregion
 
     //#region config
@@ -85,6 +95,8 @@
     var urlBuyWishingWell = `${urlHost}${URLPATH_BUY_WISHING_WELL}`;
     var urlChristmasGift = `${urlHost}${URLPATH_CHRISTMAS_GIFT}`;
     var urlReceiveChristmasGift = `${urlHost}${URLPATH_RECEIVE_CHRISTMAS_GIFT}`;
+    var urlGetPlayoffRoundList = `${urlHost}${URLPATH_GET_PLAYOFF_ROUND_LIST}`;
+    var urlVotePlayoff = `${urlHost}${URLPATH_VOTE_PLAYOFF}`;
     //#endregion
 
     //#region utils
@@ -535,6 +547,49 @@
         return res;
     }
 
+    var getPlayoffRoundList = async function (activityID, round) {
+        var method = 'POST';
+        var url = urlGetPlayoffRoundList;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            activity_id: activityID,
+            round: round,
+            TEAM_USER_TOKEN: token
+        }
+
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
+    var getVotePlayoff = async function (ID, member_id, num) {
+        var method = 'POST';
+        var url = urlVotePlayoff;
+        var queryString = {
+            post_time: date.getTime(),
+            TEAM_USER_TOKEN: token,
+            os: 'm'
+        };
+
+        data = {
+            id: ID,
+            member_id: member_id,
+            num: num,
+            from: 0,
+            server_id: 1701,
+            TEAM_USER_TOKEN: token
+        }
+
+        // var res = getXhr(method, url, queryString, JSON.stringify(data));
+        var res = await getFetch(method, url, queryString, JSON.stringify(data));
+        return res;
+    }
+
     var activityList = [];
     var taskGetActivityIndex = async function () {
         for (value of Object.values(GROUP_ID)) {
@@ -681,6 +736,28 @@
         }
         log(`圣诞礼物Done~`);
     }
+
+    var taskPlayoffRound = async function () {
+        var activity = activityList.find(item => item['title'].includes('冠军之路不停摆'));
+        if (activity) {
+            var activityID = activity['id'];
+            var round = activity['round'];
+            var playoffRound = (await getPlayoffRoundList(activityID, round)).result;
+            for (let i = 0; i < playoffRound['list'].length; i++) {//免费票
+                let item = playoffRound['list'][0];
+                if (item['next_free_time'] === 0) {
+                    await getVotePlayoff(item['id'], item['left_member'][0], 1);//默认投左侧队伍
+                    log(`免费投票~`);
+                }
+            }
+
+            let item = playoffRound['list'][0];
+            let num = playoffRound['player_info'][PLAYOFF_TICKET[round]];
+            await getVotePlayoff(item['id'], item['left_member'][0], num);
+            log(`冠军之路投票${num}`);
+        }
+        log(`冠军之路Done~`);
+    }
     //#endregion
 
     //#region run
@@ -694,5 +771,6 @@
     await taskLegend();
     await taskWishingWell();
     await taskChristmasGift();
+    await taskPlayoffRound();
     //#endregion
 }())
