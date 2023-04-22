@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.24
+// @version      0.24b
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.增加冠军之路投票
+// @update       1.修正冠军之路免费票错误
 
 (async function () {
     //#region constant
@@ -744,7 +744,7 @@
             var round = activity['round'];
             var playoffRound = (await getPlayoffRoundList(activityID, round)).result;
             for (let i = 0; i < playoffRound['list'].length; i++) {//免费票
-                let item = playoffRound['list'][0];
+                let item = playoffRound['list'][i];
                 if (item['next_free_time'] === 0) {
                     await getVotePlayoff(item['id'], item['left_member'][0], 1);//默认投左侧队伍
                     log(`免费投票~`);
