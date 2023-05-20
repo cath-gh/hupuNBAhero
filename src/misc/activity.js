@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.24b
+// @version      0.24c
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修正冠军之路免费票错误
+// @update       1.修正冠军之路结束后报错
 
 (async function () {
     //#region constant
@@ -753,8 +753,10 @@
 
             let item = playoffRound['list'][0];
             let num = playoffRound['player_info'][PLAYOFF_TICKET[round]];
-            await getVotePlayoff(item['id'], item['left_member'][0], num);
-            log(`冠军之路投票${num}`);
+            if (item) {//item为undefined 则投票结束
+                await getVotePlayoff(item['id'], item['left_member'][0], num);
+                log(`冠军之路投票${num}`);
+            }
         }
         log(`冠军之路Done~`);
     }
