@@ -1,8 +1,8 @@
 // @name         activity
-// @version      0.24c
+// @version      0.25
 // @description  NBA英雄 activity
 // @author       Cath
-// @update       1.修正冠军之路结束后报错
+// @update       1.增加年度颁奖典礼活动
 
 (async function () {
     //#region constant
@@ -760,6 +760,30 @@
         }
         log(`冠军之路Done~`);
     }
+
+    var taskAnnualAwards = async function () {//年度颁奖典礼任务
+        var activity = activityList.find(item => item['title'].includes('年度颁奖典礼'));
+        if (activity) {
+            var activityID = activity['id'];
+            var subList = (await getActicitySubList(activityID)).result['list'];
+
+            var detailID = subList.find(item => item['title'].includes('签到'))['id'];//签到
+            var rewardID = (await getActivityDetail(detailID)).result['list'][0]['id'];
+            await getActivityReward(rewardID);
+
+            var subItem = subList.find(item => item['title'].includes('决战'))
+            var detailLinkID = subItem['link_id'].split(',');//挑战关卡
+            var stageAreaList = (await getStageAreaList(subItem['id'], detailLinkID[2], detailLinkID[0], detailLinkID[1])).result;
+            var num = stageAreaList['challenge_times'];
+            var stageID = parseInt(stageAreaList['stage_list'].find(item => item['is_lock'] === 1)['id']) - 1;//第一个未解锁关卡
+            // var stageID = '27220';
+            for (let i = 0; i < num; i++) {
+                await getStageFight(stageID);
+                stageID += 1;
+            }
+        }
+        log(`年度颁奖Done~`);
+    }
     //#endregion
 
     //#region run
@@ -774,5 +798,6 @@
     await taskWishingWell();
     await taskChristmasGift();
     await taskPlayoffRound();
+    await taskAnnualAwards();
     //#endregion
 }())
